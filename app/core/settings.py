@@ -18,6 +18,7 @@ class _Settings(BaseSettings):
     """
     MONGO_PORT: str | int
     MONGO_URI: str
+    MONGO_DATABASE: str
     
     """
         :validators - specify if the environment variables are correct.

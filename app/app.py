@@ -1,4 +1,6 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 
 def create_application() -> FastAPI:
     app = FastAPI(
@@ -12,6 +14,13 @@ def create_application() -> FastAPI:
             email="yitocode@gmail.com",
             phone_number="+573003606702"
         )
+    )
+    
+    app.mount("/static", StaticFiles(directory="static", check_dir=True), name="static")
+    
+    app.add_middleware(
+        CORSMiddleware,
+           
     )
     
     return app

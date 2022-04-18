@@ -5,6 +5,7 @@ from . import BaseModel
 from .profile_model import Profile
 from .permission_model import Permission
 from .group_model import Group
+from .client_model import Client
 
 class User(BaseModel):
     uid: str|bytes = Field(default=None)
@@ -13,6 +14,7 @@ class User(BaseModel):
     email: str = Field(default=None)
     password: str = Field(default=None)
     profile: Profile = Field(default=None) # Pending
+    clients: list[Client] = Field(default=None)
     groups: list[Group] = Field(default=None) # Pending
     permissions: list[Permission] = Field(default=None) # Pending
     accept_terms: bool = Field(default=None)

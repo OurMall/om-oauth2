@@ -2,7 +2,7 @@ import datetime
 from authlib.jose import jwt, errors
 from authlib.common.encoding import to_bytes
 
-class JSONWebToken:
+class JSONWebTokenService:
     
     def __init__(self, **kwds: dict[str, object]) -> None:
         if kwds.get('headers'):
@@ -67,3 +67,6 @@ class JSONWebToken:
             )
         else:
             return payload
+    
+    def revoke(self):
+        pass
