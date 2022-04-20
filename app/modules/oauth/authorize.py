@@ -1,11 +1,12 @@
 from fastapi import APIRouter, Response, Query
+from fastapi.responses import HTMLResponse
 
 router = APIRouter(
     prefix="/authorize",
     tags=["Authorize"]
 )
 
-@router.get("/", summary="Authorize", description="Endpoint for user agent authorization")
+@router.get("/", response_class=HTMLResponse, summary="Authorize", description="Endpoint for user agent authorization")
 async def authorize(
     response_type: str = Query(...),
     client_id: str = Query(...),

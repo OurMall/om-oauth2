@@ -20,7 +20,7 @@ def create_application() -> FastAPI:
     
     app.add_middleware(
         CORSMiddleware,
-           
+                  
     )
     
     return app
