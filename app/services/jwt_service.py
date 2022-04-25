@@ -2,6 +2,8 @@ import datetime
 from authlib.jose import jwt, errors
 from authlib.common.encoding import to_bytes
 
+from app.core import settings
+
 class JSONWebTokenService:
     
     def __init__(self, **kwds: dict[str, object]) -> None:
@@ -25,7 +27,7 @@ class JSONWebTokenService:
             encoded: bytes = jwt.encode(
                 header=self._headers,
                 payload=payload,
-                key="my-key",
+                key=self._load_key,
                 check=True
             )
             token = str(encoded)
@@ -47,7 +49,7 @@ class JSONWebTokenService:
         try:
             payload: dict[str, object] = jwt.decode(
                 s=encoded,
-                key="my-key"
+                key=self._load_key
             )
             if validate:
                 payload.validate(
@@ -70,3 +72,25 @@ class JSONWebTokenService:
     
     def revoke(self):
         pass
+    
+    def _load_key(
+        self, 
+        header: dict[str, object], 
+        payload: dict[str, object], 
+        private_key: bool=False
+    ):
+        match header['alg']:
+            case 'RS256':
+                if private_key:
+                    key: bytes | str = self._get_rsa_key(private=True)
+                else:
+                    key = self._get_rsa_key()
+                return key
+            case 'HS256':
+                return settings.PROJECT_SECRET_KEY
+            case _:
+                raise errors.UnsupportedAlgorithmError()
+    
+    def _get_rsa_key(self, private: bool=False) -> str | bytes:
+        pass
+    

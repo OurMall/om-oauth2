@@ -33,7 +33,7 @@ async def authorize_known_client(
             detail={
                 "status": "fail",
                 "response": {
-                    "error": "Failed to authorize knowed client"
+                    "error": "Failed to authorize known client"
                 }
             },
             headers={

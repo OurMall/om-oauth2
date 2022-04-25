@@ -21,6 +21,11 @@ class _Settings(BaseSettings):
     MONGO_DATABASE: str
     
     """
+        :constants SECRET - project secret keys
+    """
+    PROJECT_SECRET_KEY: str
+    
+    """
         :validators - specify if the environment variables are correct.
     """
     @validator("MONGO_URI", pre=True, always=True)
