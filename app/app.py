@@ -2,21 +2,30 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 
+from .common import Client # It will be use for cors origins.
+
 def create_application() -> FastAPI:
+    
     app = FastAPI(
         debug=True,
-        title="Our Mall - OAuth2",
+        title="Our Mall - Authorization Server",
         description="""
-            Servidor de autorizacion del proyecto Our Mall
+            Server for clients or third part applications authorization, this server issued
+            scopes to the register clients.
         """,
-        version="v0.1.0",
-        contact=dict(
-            email="yitocode@gmail.com",
-            phone_number="+573003606702"
-        )
+        version="v0.6.0",
+        contact={
+            "name": "Brian Castro",
+            "url": "https://brian-space.herokuapp.com/",
+            "email": "bcastro421@misena.edu.co"
+        }
     )
     
-    app.mount("/static", StaticFiles(directory="static", check_dir=True), name="static")
+    app.mount(
+        path="/static", 
+        app=StaticFiles(directory="app/static", check_dir=True), 
+        name="static"
+    )
     
     app.add_middleware(
         CORSMiddleware,

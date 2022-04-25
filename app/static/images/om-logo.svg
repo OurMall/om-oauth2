@@ -1,0 +1,20 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" width="1024" height="1024">
+    <defs>
+        <image width="1024" height="1024" id="img1" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAQAAQMAAABF07nAAAAAAXNSR0IB2cksfwAAAANQTFRFAAAAp3o92gAAAAF0Uk5TAEDm2GYAAACWSURBVHic7cEBAQAAAIIg/69uSEABAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAO8GBB4AAZ8h0uYAAAAASUVORK5CYII=" />
+    </defs>
+    <style>.a{fill:#0086e6}.b{fill:none;stroke:#fff;stroke-width:50}.c{fill:#fff}.d{display:none;fill:#fff}</style>
+    <use href="#img1" x="0" y="0" />
+    <circle class="a" cx="512" cy="512" r="512" />
+    <path class="b" d="m510.6 43.8l397.1 234.6v469.1l-397.1 234.5-397-234.5v-469.1z" />
+    <circle class="c" cx="512" cy="74" r="75" />
+    <circle class="c" cx="136" cy="736" r="75" />
+    <circle class="c" cx="135" cy="288" r="75" />
+    <circle class="c" cx="512" cy="950" r="75" />
+    <circle class="c" cx="888" cy="736" r="75" />
+    <circle class="c" cx="886" cy="285" r="75" />
+    <path class="d" d="m748.7 726.4l-96.6 0.3-1.1-431.4 96.6-0.3zm-146.2-333.6l-328.1 0.9-0.2-97.5 328-0.8zm-43.9 334.1l-96.1 0.2-0.7-284.7 96-0.3zm-186.6 0.5l-96.6 0.3-0.7-284.8 96.6-0.2z" />
+    <path class="d" d="m398.5 738h-37.5v-225h75q31.1 0 52.7 22.3 22.3 21.6 22.3 52.7 31.1 0 52.7 22.3 22.3 21.6 22.3 52.7v75h-37.5v-75q0-15.2-11.1-26.4-11.2-11.1-26.4-11.1v112.5h-37.5v-150q0-15.2-11.1-26.4-11.2-11.1-26.4-11.1h-37.5z" />
+    <path class="d" d="m373.8 718h-68.8v-412.5h137.5q56.9 0 96.7 40.8 40.8 39.8 40.8 96.7 56.9 0 96.7 40.8 40.8 39.8 40.8 96.7v137.5h-68.8v-137.5q0-27.9-20.4-48.3-20.4-20.5-48.3-20.5v206.3h-68.8v-275q0-27.9-20.4-48.3-20.4-20.5-48.3-20.5h-68.8z" />
+    <path class="c" d="m357.3 675.9v-263.8h132v176h44v-132h132v132h88v43.9h-132v-132h-43.9v132h-132v-175.9h-44.1v175.9zm-87.8 88.1v-439.9h307.9v43.9h175.9v176h-43.9v-132h-176v-44h-219.9v351.9z" />
+    <path class="d" d="m252.2 672h87.5v-175l-87.5-87.5v78.6zm306.2 0h87.5v-43.7l-306.2-306.3h-87.5v13 30.8zm175 0h87.5v-43.8l-306.3-306.2h-87.5v43.7z" />
+</svg>

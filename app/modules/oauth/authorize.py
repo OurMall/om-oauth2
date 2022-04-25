@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Response, Query
+from fastapi import APIRouter, Request, Response, HTTPException, Query
 from fastapi.responses import HTMLResponse
 
+from app.core.templates import templates
+
 router = APIRouter(
-    prefix="/authorize",
-    tags=["Authorize"]
+    prefix="/oauth",
 )
 
-@router.get("/", response_class=HTMLResponse, summary="Authorize", description="Endpoint for user agent authorization")
+@router.get("/authorize", response_class=HTMLResponse, summary="Authorize", description="Endpoint for user agent authorization")
 async def authorize(
     response_type: str = Query(...),
     client_id: str = Query(...),
@@ -17,6 +18,37 @@ async def authorize(
 ) -> Response:
     ...
 
-@router.post("/")
+@router.post("/authorize")
 async def authorize_callback():
+    pass
+
+@router.get("/known", response_class=HTMLResponse, status_code=200, summary="Known Client", description="Endpoint for authorize a known client")
+async def authorize_known_client(
+    request: Request,
+    token: str = Query(..., title="Client Token", description="Token issued by the authorization server for the client")
+):
+    if not token or not isinstance(token, str):
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "status": "fail",
+                "response": {
+                    "error": "Failed to authorize knowed client"
+                }
+            },
+            headers={
+                "WWW-Authenticate": "Bearer"
+            }
+        )
+    print("Client Key", token)
+    return templates.TemplateResponse(
+        name="modules/login_client.html",
+        context={
+            "request": request
+        },
+        status_code=200
+    )
+
+@router.post("/token")
+async def token():
     pass

@@ -28,7 +28,7 @@ class _Settings(BaseSettings):
         if isinstance(value, str):
             return value
         else:
-            return "mongodb://localhost:{0}".format(value.get('port'))
+            return f"mongodb://localhost:{value.get('port')}"
     
     class Config:
         env_file: str = ".env.local"

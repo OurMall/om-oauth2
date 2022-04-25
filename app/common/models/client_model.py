@@ -11,8 +11,7 @@ class ClientBase(BaseModel):
     @validator("client_name")
     def validate_client_name(cls, value: str) -> str:
         if isinstance(value, str):
-            digits = '[0-9]'
-            if re.match(digits, value):
+            if re.match('[0-9]', value):
                 raise ValueError("Cannot contain numbers")
             return value
         raise ValueError("Must be a str")
