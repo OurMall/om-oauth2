@@ -1,24 +1,21 @@
 import datetime
+
 from .app import create_application
 from .database import init
 from .common import Client, Permission
-from .modules.oauth import auth, authorize, client
+from .modules.oauth2 import oauth2
+from .modules.connect import connect
 
 app = create_application()
 
 app.include_router(
-    router=auth.router,
-    tags=["Authentication"]
+    router=oauth2.router,
+    tags=["OAuth2 Protocol"]
 )
 
 app.include_router(
-    router=authorize.router,
-    tags=["Authorization"]
-)
-
-app.include_router(
-    router=client.router,
-    tags=["Dynamic Clients Registration"]
+    router=connect.router,
+    tags=["Open ID Connect"]
 )
 
 @app.on_event('startup')

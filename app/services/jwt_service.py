@@ -92,7 +92,7 @@ class JSONWebTokenService:
     
     def _get_rsa_key(self, private: bool=False) -> str | bytes:
         file_type: str = "private" if private else "public"
-        with open(f"{Path().parent.parent}/keys/{file_type}", "rb") as file:
+        with open(f"{Path().parent.parent}/keys/{file_type}.pem", "rb") as file:
             rsa_key: bytes | str = file.read()
         return rsa_key
     

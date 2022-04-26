@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Query
 
-from app.common.models.client_model import ClientModel, ClientCreate
-
 router = APIRouter(
-    prefix="/connect",
+    prefix="/client"
 )
 
 @router.get("/register", response_model=None, status_code=200)
@@ -14,6 +12,6 @@ async def show_client(
 
 @router.post("/register", response_model=None, status_code=201)
 async def register_client(
-    client: ClientCreate
+    client: object
 ):
     pass

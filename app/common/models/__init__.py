@@ -7,6 +7,3 @@ class BaseModel(PydanticBaseModel):
         orm_mode=True
         arbitrary_types_allowed=True
         validate_assignment=True
-
-class ResponseModel(BaseModel):
-    pass
