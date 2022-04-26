@@ -1,4 +1,5 @@
 import datetime
+from pathlib import Path
 from authlib.jose import jwt, errors
 from authlib.common.encoding import to_bytes
 
@@ -43,9 +44,7 @@ class JSONWebTokenService:
     ) -> object:
         if not isinstance(encoded, bytes):
             encoded = to_bytes(encoded)
-        dot_count: int = encoded.count(b'.')
-        if dot_count == 2:
-            pass
+        #dot_count: int = encoded.count(b'.')
         try:
             payload: dict[str, object] = jwt.decode(
                 s=encoded,
@@ -92,5 +91,8 @@ class JSONWebTokenService:
                 raise errors.UnsupportedAlgorithmError()
     
     def _get_rsa_key(self, private: bool=False) -> str | bytes:
-        pass
+        file_type: str = "private" if private else "public"
+        with open(f"{Path().parent.parent}/keys/{file_type}", "rb") as file:
+            rsa_key: bytes | str = file.read()
+        return rsa_key
     

@@ -9,7 +9,6 @@ async def init():
         settings.MONGO_URI
     )
     database = client[settings.MONGO_DATABASE]
-    print(settings.MONGO_URI, settings.MONGO_DATABASE)
     await init_beanie(
         database=database,
         document_models=[

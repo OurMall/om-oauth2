@@ -6,8 +6,8 @@ from beanie import Document, Insert, Replace, Indexed, after_event, before_event
 from app.services.oauth_service import OAuth2Service
 
 class Client(Document):
-    application_id: str | None #= Indexed(str, index_type=pymongo.TEXT, unique=True)
-    application_secret: str | None #= Indexed(str, index_type=pymongo.TEXT, unique=True)
+    application_id: str | None
+    application_secret: str | None
     redirect_uris: list[str]
     response_types: list[str] = Field(["code", "code id_token"])
     grant_types: list[str] = Field(["authorization_code"])
