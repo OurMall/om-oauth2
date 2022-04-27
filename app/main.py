@@ -1,8 +1,9 @@
 import datetime
+from fastapi.middleware.cors import CORSMiddleware
 
 from .app import create_application
 from .database import init
-from .common import Client, Permission
+from .common import Client
 from .modules.oauth2 import oauth2
 from .modules.connect import connect
 
@@ -22,6 +23,13 @@ app.include_router(
 async def on_startup():
     print("Server is starting...")
     await init()
+    app.add_middleware(
+        CORSMiddleware,
+        allow_credentials=True,
+        allow_origins=[origin.application_uri for origin in await Client.find().to_list()],
+        allow_methods=["*"],
+        allow_headers=["*"]
+    )
     """client = Client(
         application_id="well-known-console-client",
         application_secret="1098306124",
@@ -34,6 +42,7 @@ async def on_startup():
         policy_uri="http://localhost:4201/policy",
         tos_uri="http://localhost:4201/terms",
         subject_type="public",
+        is_known=True,
         created_at=datetime.datetime.now()
     )
     await client.insert(skip_actions=['set_app_credentials'])"""
@@ -41,5 +50,4 @@ async def on_startup():
 @app.on_event('shutdown')
 async def on_shutdown():
     print("Shutdown application...")
-    """await Client.find().delete_many()
-    await Permission.find().delete_many()"""
+    #await Client.find().delete_many()

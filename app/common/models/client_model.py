@@ -4,6 +4,15 @@ from pydantic import Field, validator
 
 from . import BaseModel
 
+class ClientCredentials(BaseModel):
+    """Model for request a known client
+
+    Args:
+        BaseModel (_type_): Base pydantic model args.
+    """
+    application_id: str = Field(..., title="Application ID", description="Unique application/client identifier issued by authorization server")
+    application_secret: str = Field(..., title="Application Secret", description="Application/client secret key for request to authorization server")
+
 class ClientBase(BaseModel):
     client_name: str = Field(..., title="Client Name", description="Client name for identify with OAuth2 authorization consent")
     redirect_uris: list[str] = Field(..., title="Redirect URI's", description="Redirect URIS list/array for the client")

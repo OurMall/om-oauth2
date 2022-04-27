@@ -1,8 +1,5 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
-from fastapi.middleware.cors import CORSMiddleware
-
-from .common import Client # It will be use for cors origins.
 
 def create_application() -> FastAPI:
     
@@ -25,14 +22,6 @@ def create_application() -> FastAPI:
         path="/static", 
         app=StaticFiles(directory="app/static", check_dir=True), 
         name="static"
-    )
-    
-    app.add_middleware(
-        CORSMiddleware,
-        allow_credentials=True,
-        allow_origins=["*"],
-        allow_methods=["*"],
-        allow_headers=["*"]
     )
     
     return app

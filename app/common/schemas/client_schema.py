@@ -6,14 +6,14 @@ from beanie import Document, Insert, Replace, Indexed, after_event, before_event
 from app.services.oauth_service import OAuth2Service
 
 class Client(Document):
-    application_id: str | None
+    application_id: str | None #= Indexed(str, unique=True)
     application_secret: str | None
     redirect_uris: list[str]
     response_types: list[str] = Field(["code", "code id_token"])
     grant_types: list[str] = Field(["authorization_code"])
     application_type: str
     contact: str
-    application_name: str = Indexed(str, index_type=pymongo.ASCENDING, name="application_name_index", unique=True)
+    application_name: str
     logo_uri: str
     application_uri: str
     policy_uri: str
@@ -21,6 +21,7 @@ class Client(Document):
     jwks_uri: str | None = Field(None)
     subject_type: str
     default_max_age: int | datetime.time = Field(datetime.timedelta(days=1).total_seconds())
+    is_known: bool = Field(False)
     is_disabled: bool = Field(False)
     updated_at: int | datetime.datetime = Field(datetime.datetime.now())
     created_at: int | datetime.datetime | None

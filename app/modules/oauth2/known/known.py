@@ -2,6 +2,8 @@ from fastapi import HTTPException, APIRouter, Request, Query
 from fastapi.responses import HTMLResponse
 
 from app.core.templates import templates
+from app.common import Client
+from app.common.models.client_model import ClientCredentials
 
 router = APIRouter(
     prefix="/known"
@@ -25,8 +27,6 @@ async def authorize_known(
                 "WWW-Authenticate": "Bearer"
             }
         )
-    print(request.base_url)
-    print("Client Key", token)
     return templates.TemplateResponse(
         name="modules/login_client.html",
         context={
@@ -38,5 +38,22 @@ async def authorize_known(
 @router.post("/", response_model=None, status_code=201)
 async def authorize_known_client(
     request: Request,
+    credentials: ClientCredentials
 ):
-    pass
+    client = await Client.find_one({"application_id": credentials.application_id})
+    if not client.is_known:
+        raise HTTPException(
+            status_code=403,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "No known application"
+                }
+            },
+            headers={
+                "WWW-Authenticate": "Bearer",
+                "Authentication": "Bearer"
+            }
+        )
+    print("Known application") # TODO:// Create JWT for Known Client authorization
+    # TODO:// PASS the access known token to the login endpoint
