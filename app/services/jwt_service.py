@@ -17,7 +17,7 @@ class JSONWebTokenService:
     def encode(
         self,
         payload: dict[str, object],
-        encrypt: bool|None
+        encrypt: bool | None
     ) -> str | bytes:
         if encrypt:
             self._headers = {
@@ -39,8 +39,8 @@ class JSONWebTokenService:
     
     def decode(
         self,
-        encoded: str|bytes,
-        validate: bool|None
+        encoded: str | bytes,
+        validate: bool | None
     ) -> object:
         if not isinstance(encoded, bytes):
             encoded = to_bytes(encoded)
