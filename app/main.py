@@ -30,7 +30,7 @@ async def on_startup():
         allow_methods=["*"],
         allow_headers=["*"]
     )
-    client = Client(
+    """client = Client(
         application_id="well-known-console-client",
         application_secret="1098306124",
         redirect_uris=["http://localhost:4201/callback", "http://localhost:4201/console"],
@@ -45,9 +45,9 @@ async def on_startup():
         is_known=True,
         created_at=datetime.datetime.now()
     )
-    await client.insert(skip_actions=['set_app_credentials'])
+    await client.insert(skip_actions=['set_app_credentials'])"""
 
 @app.on_event('shutdown')
 async def on_shutdown():
     print("Shutdown application...")
-    await Client.find().delete_many()
+    #await Client.find().delete_many()

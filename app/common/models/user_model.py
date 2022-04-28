@@ -7,6 +7,10 @@ from .permission_model import Permission
 from .group_model import Group
 from .client_model import ClientModel
 
+class UserLogin(BaseModel):
+    email: str = Field(...)
+    password: str = Field(...)
+
 class User(BaseModel):
     uid: str|bytes = Field(default=None)
     name: str = Field(default=None)

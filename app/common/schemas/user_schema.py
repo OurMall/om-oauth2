@@ -35,7 +35,7 @@ class User(Document):
     nickname: str | None
     preferred_username: str
     gender: Gender
-    email: str = Indexed(str, index_type=pymongo.TEXT, unique=True)   # Unique 
+    email: Indexed(str, index_type=pymongo.TEXT, unique=True)
     password: str | None
     phone_number: str
     profile: Profile
@@ -65,7 +65,7 @@ class User(Document):
         name = "users"
     
     class Settings:
-        validate_on_save = True # This validate field data types
+        validate_on_save = True
         use_cache = True
         cache_expiration_time = datetime.timedelta(seconds=60)
         cache_capacity = 3

@@ -14,10 +14,11 @@ oauth2_code_scheme = OAuth2AuthorizationCodeBearer(
     },
     description="""
         This schema define how the authorization code grant type works in
-        our application, that defines the main endpoints for alll clients.
-    """
+        our application, that defines the main endpoints for all clients.
+    """,
+    auto_error=True
 )
 
 open_id_connect = OpenIdConnect(
-    openIdConnectUrl="/"
+    openIdConnectUrl="/connect/"
 )

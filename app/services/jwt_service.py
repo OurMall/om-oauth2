@@ -1,7 +1,7 @@
 import datetime
-from pathlib import Path
+from fastapi import HTTPException
 from authlib.jose import jwt, errors
-from authlib.common.encoding import to_bytes
+from authlib.common.encoding import to_bytes, to_unicode
 
 from app.core import settings
 
@@ -28,12 +28,12 @@ class JSONWebTokenService:
             encoded: bytes = jwt.encode(
                 header=self._headers,
                 payload=payload,
-                key=self._load_key,
+                key=self._get_rsa_key(private=True),
                 check=True
             )
-            token = str(encoded)
+            token = to_unicode(encoded)
         except Exception as e:
-            raise ValueError('Cannot encode the payload')
+            raise ValueError('Cannot encode the payload', e)
         else:
             return token
     
@@ -55,17 +55,11 @@ class JSONWebTokenService:
                     leeway=datetime.timedelta(minutes=11).total_seconds()
                 )
         except errors.ExpiredTokenError:
-            return dict(
-                message="Token expired"
-            )
+            raise HTTPException(status_code=401, detail="Token expired")
         except errors.BadSignatureError:
-            return dict(
-                message="Invalid token signature"
-            )
+            raise HTTPException(status_code=401, detail="Bad token signature")
         except errors.DecodeError:
-            return dict(
-                message="Failed to decode token"
-            )
+            raise HTTPException(status_code=401, detail="Fail to decode token")
         else:
             return payload
     
@@ -79,7 +73,7 @@ class JSONWebTokenService:
         private_key: bool=False
     ):
         match header['alg']:
-            case 'RS256':
+            case 'RS256' | 'RSA-OAEP-256':
                 if private_key:
                     key: bytes | str = self._get_rsa_key(private=True)
                 else:
@@ -92,7 +86,7 @@ class JSONWebTokenService:
     
     def _get_rsa_key(self, private: bool=False) -> str | bytes:
         file_type: str = "private" if private else "public"
-        with open(f"{Path().parent.parent}/keys/{file_type}.pem", "rb") as file:
+        with open(f"app/keys/{file_type}.pem", "rb") as file:
             rsa_key: bytes | str = file.read()
         return rsa_key
     

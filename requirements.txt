@@ -1,0 +1,12 @@
+Authlib==1.0.1
+beanie==1.10.8
+cffi==1.15.0
+cryptography==36.0.2
+motor==2.5.1
+multidict==6.0.2
+pycparser==2.21
+pydantic==1.9.0
+pymongo==3.12.3
+toml==0.10.2
+typing-extensions==4.2.0
+yarl==1.7.2

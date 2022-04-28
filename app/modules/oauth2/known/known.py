@@ -1,9 +1,9 @@
 import datetime
 from fastapi import HTTPException, APIRouter, Request, Query, Depends
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, Response
 
+from app.core import templates
 from app.services import JSONWebTokenService
-from app.core.templates import templates
 from app.common import Client
 from app.common.dependencies import jwt
 from app.common.models.client_model import ClientCredentials
@@ -43,8 +43,18 @@ async def authorize_known_client(
     request: Request,
     credentials: ClientCredentials,
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
-):
-    client = await Client.find_one({"application_id": credentials.application_id})
+) -> Response:
+    client = await Client.find_one({"application_id": credentials.application_id, "application_secret": credentials.application_secret})
+    if not client:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Client didn't exist"
+                }
+            },
+        )
     if not client.is_known:
         raise HTTPException(
             status_code=403,
@@ -59,28 +69,24 @@ async def authorize_known_client(
                 "Authentication": "Bearer"
             }
         )
-    print("Known application") # TODO:// Create JWT for Known Client authorization
+    # TODO:// Create JWT for Known Client authorization
     # TODO:// PASS the access known token to the login endpoint
-    expiration: int = (datetime.datetime.now() + datetime.timedelta(days=1).total_seconds())
+    #expiration = datetime.datetime.utcnow() + datetime.timedelta(days=1)
+    expiration = datetime.timedelta(days=1)
     known_token: str | bytes = jwt_provider.encode({
         "application_id": client.application_id,
         "is_known": client.is_known,
-        "iss": request.url,
-        "iat": datetime.datetime.now(),
-        "exp": expiration,
+        "iss": str(request.url),
+        "iat": datetime.datetime.utcnow(),
+        "exp": datetime.datetime.utcnow() + expiration,
         "scopes": "all"
     }, encrypt=True)
     return JSONResponse(
         content={
             "known_token": known_token,
-            "expires_in": expiration,
+            "expires_in": expiration.total_seconds(),
             "token_type": "bearer"
         },
-        status_code=200,
-        headers={
-            "Authorization": "Bearer {0}".format(known_token),
-            "WWW-Authenticate": "Bearer {0}".format(known_token)
-        },
-        media_type="application/json"
+        status_code=201,
     )
     
