@@ -19,7 +19,7 @@ app.include_router(
     tags=["Open ID Connect"]
 )
 
-@app.on_event('startup')
+@app.on_event("startup")
 async def on_startup():
     print("Server is starting...")
     await init()
@@ -47,7 +47,7 @@ async def on_startup():
     )
     await client.insert(skip_actions=['set_app_credentials'])"""
 
-@app.on_event('shutdown')
+@app.on_event("shutdown")
 async def on_shutdown():
     print("Shutdown application...")
     #await Client.find().delete_many()

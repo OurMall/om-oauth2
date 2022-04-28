@@ -18,7 +18,7 @@ def decode_authorization_header(
                 detail={
                     "status": "fail",
                     "response": {
-                        "message": "Not valid authorization header"
+                        "message": "Missing bearer token"
                     }
                 }
             )
@@ -50,7 +50,6 @@ def is_known_client(
 ) -> bool | None:
     if payload.get("is_known") and payload.get("scopes"):
         is_known, scopes = payload.get("is_known"), payload.get("scopes")
-        print(payload["is_known"])
         if isinstance(is_known, bool) and is_known:
             return is_known
         pass
