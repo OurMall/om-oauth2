@@ -28,7 +28,7 @@ class JSONWebTokenService:
             encoded: bytes = jwt.encode(
                 header=self._headers,
                 payload=payload,
-                key=self._get_rsa_key(private=True),
+                key=self._load_key(private_key=True),
                 check=True
             )
             token = to_unicode(encoded)
@@ -44,11 +44,14 @@ class JSONWebTokenService:
     ) -> object:
         if not isinstance(encoded, bytes):
             encoded = to_bytes(encoded)
-        #dot_count: int = encoded.count(b'.')
+        key = self._load_key(private_key=True)
+        dot_count: int = encoded.count(b'.')
+        if dot_count == 2:
+            key = self._load_key(private_key=False)
         try:
             payload: dict[str, object] = jwt.decode(
                 s=encoded,
-                key=self._load_key
+                key=key
             )
             if validate:
                 payload.validate(
@@ -68,21 +71,21 @@ class JSONWebTokenService:
     
     def _load_key(
         self, 
-        header: dict[str, object], 
-        payload: dict[str, object], 
         private_key: bool=False
     ):
-        match header['alg']:
-            case 'RS256' | 'RSA-OAEP-256':
-                if private_key:
-                    key: bytes | str = self._get_rsa_key(private=True)
-                else:
-                    key = self._get_rsa_key()
-                return key
-            case 'HS256':
-                return settings.PROJECT_SECRET_KEY
-            case _:
-                raise errors.UnsupportedAlgorithmError()
+        def load_key(header: dict[str, object], payload: dict[str, object]):
+            match header['alg']:
+                case 'RS256' | 'RSA-OAEP-256':
+                    if private_key:
+                        key: bytes | str = self._get_rsa_key(private=True)
+                    else:
+                        key = self._get_rsa_key()
+                    return key
+                case 'HS256':
+                    return settings.PROJECT_SECRET_KEY
+                case _:
+                    raise errors.UnsupportedAlgorithmError()
+        return load_key
     
     def _get_rsa_key(self, private: bool=False) -> str | bytes:
         file_type: str = "private" if private else "public"
