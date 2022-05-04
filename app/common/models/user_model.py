@@ -7,9 +7,21 @@ from .permission_model import Permission
 from .group_model import Group
 from .client_model import ClientModel
 
+from app.common import Gender
+
 class UserLogin(BaseModel):
     email: str = Field(...)
     password: str = Field(...)
+    
+class UserSignup(UserLogin):
+    given_name: str
+    family_name: str
+    middle_name: str | None
+    gender: Gender
+    phone_number: str
+    birthdate: int | datetime.date
+    zoneinfo: str
+    locale: str
 
 class User(BaseModel):
     uid: str|bytes = Field(default=None)

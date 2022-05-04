@@ -3,18 +3,13 @@ from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import Response, JSONResponse
 from passlib.context import CryptContext
 
-from app.services import JSONWebTokenService
+from app.services import JSONWebTokenService, AuthService
 from app.common import User
 from app.common.dependencies import jwt
 from app.common.models.user_model import UserLogin
 
 router = APIRouter(
     prefix="/login"
-)
-
-password_context = CryptContext(
-    schemes=["bcrypt"],
-    deprecated="auto"
 )
 
 @router.post("/", response_model=None, status_code=200)
@@ -37,7 +32,7 @@ async def login(
                     }
                 }
             )
-        if verify_password(user_credentials.password, user.password):
+        if AuthService.verify_password(user_credentials.password, user.password):
             expiration = datetime.timedelta(days=1)
             access_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
@@ -86,9 +81,3 @@ async def login(
             }
         }
     )
-
-def verify_password(plain: str, hash: str | bytes) -> bool:
-    return password_context.verify(plain, hash)
-
-def hash_password(plain: str) -> str | bytes:
-    return password_context.hash(plain)
