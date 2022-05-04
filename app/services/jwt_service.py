@@ -28,10 +28,10 @@ class JSONWebTokenService:
             encoded: bytes = jwt.encode(
                 header=self._headers,
                 payload=payload,
-                key=self._load_key(private_key=True),
+                key=self._get_rsa_key(private=True),
                 check=True
             )
-            token = to_unicode(encoded)
+            token: str = to_unicode(encoded)
         except Exception as e:
             raise ValueError('Cannot encode the payload', e)
         else:
@@ -70,7 +70,7 @@ class JSONWebTokenService:
         pass
     
     def _load_key(
-        self, 
+        self,
         private_key: bool=False
     ):
         def load_key(header: dict[str, object], payload: dict[str, object]):
