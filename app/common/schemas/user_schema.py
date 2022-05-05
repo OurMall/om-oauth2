@@ -7,8 +7,9 @@ from beanie import (
     Link, 
     Insert, 
     Replace, 
-    Indexed, 
-    after_event
+    Indexed,
+    before_event,
+    after_event,
 )
 
 from . import BaseSchema, Address
@@ -34,7 +35,7 @@ class User(Document):
     nickname: str | None
     preferred_username: str | None
     gender: Gender
-    email: Indexed(str, unique=True) # TODO:// change unique index
+    email: Indexed(str) # TODO:// change unique index
     password: str | None
     phone_number: str
     profile: Profile = Field(None)
@@ -48,14 +49,14 @@ class User(Document):
     is_disabled: bool = Field(False)
     created_at: int | datetime.datetime = Field(datetime.datetime.now())
     updated_at: int | datetime.datetime = Field(datetime.datetime.now())
-    #permissions: list[Link[Permission]] = Field(None) # TODO:// pass to have to
-    #groups: list[Link[Group]] = Field(None)
+    groups: list[Link[Group]]
+    permissions: list[Link[Permission]] = Field([]) # TODO:// pass to have to
     #clients: list[Link[Client]] = Field(None)
     #favorites: list[Link[Product]]
     
-    @after_event(Insert)
+    @before_event(Insert)
     def join_fullname(self):
-        self.name = " ".join([self.given_name, self.middle_name if self.middle_name else "", self.family_name])
+        self.name = f"{self.given_name.strip()} {self.middle_name.strip() if self.middle_name else ''} {self.family_name.strip()}"
     
     @after_event(Replace)
     def change_updated_at(self):
