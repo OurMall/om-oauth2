@@ -22,10 +22,9 @@ class Gender(enum.Enum):
     OTHER="other"
 
 class Profile(BaseSchema):
-    picture: str
+    picture: str | None
     website: str | None
     biography: str | None
-    address: Address
 
 class User(Document):
     name: str | None
@@ -33,29 +32,30 @@ class User(Document):
     family_name: str
     middle_name: str | None
     nickname: str | None
-    preferred_username: str
+    preferred_username: str | None
     gender: Gender
-    email: Indexed(str, index_type=pymongo.TEXT, unique=True)
+    email: Indexed(str, unique=True) # TODO:// change unique index
     password: str | None
     phone_number: str
-    profile: Profile
-    birthdate: int | datetime.date
+    profile: Profile = Field(None)
+    address: Address = Field(None)
+    birthdate: datetime.datetime | str
     zoneinfo: str
     locale: str
     email_verified: bool = Field(False)
     phone_number_verified: bool = Field(False)
     is_blocked: bool = Field(False)
     is_disabled: bool = Field(False)
-    created_at: int | datetime.datetime
-    updated_at: int | datetime.datetime
-    permissions: list[Link[Permission]]
-    groups: list[Link[Group]]
-    clients: list[Link[Client]]
+    created_at: int | datetime.datetime = Field(datetime.datetime.now())
+    updated_at: int | datetime.datetime = Field(datetime.datetime.now())
+    #permissions: list[Link[Permission]] = Field(None) # TODO:// pass to have to
+    #groups: list[Link[Group]] = Field(None)
+    #clients: list[Link[Client]] = Field(None)
     #favorites: list[Link[Product]]
     
     @after_event(Insert)
     def join_fullname(self):
-        self.name = " ".join([self.given_name, self.middle_name, self.family_name])
+        self.name = " ".join([self.given_name, self.middle_name if self.middle_name else "", self.family_name])
     
     @after_event(Replace)
     def change_updated_at(self):

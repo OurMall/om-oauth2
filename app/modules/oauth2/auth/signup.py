@@ -1,8 +1,9 @@
 import datetime
 from fastapi import APIRouter, Request, HTTPException, Depends
+from fastapi.responses import JSONResponse
 
 from app.services import AuthService
-from app.common import User
+from app.common import User, Profile
 from app.common.dependencies import jwt
 from app.common.models.user_model import UserSignup
 from app.services.jwt_service import JSONWebTokenService
@@ -29,13 +30,24 @@ async def signup(
             }
         )
     user_credentials.password = AuthService.hash_password(user_credentials.password)
-    new_user = User(**user_credentials)
+    new_user = User(
+        given_name=user_credentials.given_name,
+        family_name=user_credentials.family_name,
+        #middle_name=user_credentials.middle_name,
+        gender=user_credentials.gender,
+        email=user_credentials.email,
+        password=user_credentials.password,
+        phone_number=user_credentials.phone_number,
+        birthdate=user_credentials.birthdate,
+        zoneinfo=user_credentials.zoneinfo,
+        locale=user_credentials.locale
+    )
     await User.insert_one(new_user)
     if new_user:
         expiration = datetime.timedelta(days=1)
         access_token: str | bytes = jwt_provider.encode({
             "iss": str(request.base_url),
-            "sub": new_user.id,
+            "sub": new_user.email,
             "aud": [
                 f"{str(request.base_url)}/connect/userinfo"
             ],
@@ -48,8 +60,20 @@ async def signup(
             "iss": str(request.base_url),
             #"azp": payload["application_id"],
             "exp": datetime.datetime.utcnow() + (expiration*2)
-        })
-        pass
+        }, encrypt=False)
+        return JSONResponse(
+            content={
+                "access_token": access_token,
+                "refresh_token": refresh_token,
+                "expires_in": expiration.total_seconds(),
+                "token_type": "Bearer"
+            },
+            status_code=200,
+            headers={
+                "Authorization": f"Bearer {access_token}",
+                "WWW-Authenticate": f"Bearer {access_token}"
+            }
+        )
     raise HTTPException(
         status_code=400,
         detail={

@@ -4,7 +4,7 @@ from .authorize import authorize
 from .known import known
 from .client import client
 from .token import token
-from .auth import login
+from .auth import login, signup
 
 router = APIRouter(
     prefix="/oauth2"
@@ -26,6 +26,11 @@ router.include_router(
 router.include_router(
     router=login.router,
     tags=["User Log In"]
+)
+
+router.include_router(
+    router=signup.router,
+    tags=["Users registration"]
 )
 
 router.include_router(

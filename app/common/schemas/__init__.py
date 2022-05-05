@@ -9,11 +9,11 @@ class BaseSchema(BaseModel):
         validate_assignment=True
 
 class Address(BaseModel):
-    formatted: str
-    street_address: str
-    locality: str
-    region: str
+    formatted: str | None
+    street_address: str | None
+    locality: str | None
+    region: str | None
     postal_code: str | None
-    country: str
+    country: str | None
 
 __all__ = ["Address"]

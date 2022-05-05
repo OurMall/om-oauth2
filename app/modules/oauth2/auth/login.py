@@ -36,7 +36,7 @@ async def login(
             expiration = datetime.timedelta(days=1)
             access_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
-                "sub": user.id,
+                "sub": user.email,
                 "aud": [
                     f"{str(request.base_url)}/connect/userinfo"
                 ],
@@ -49,7 +49,7 @@ async def login(
                 "iss": str(request.base_url),
                 "azp": payload["application_id"],
                 "exp": datetime.datetime.utcnow() + (expiration*2)
-            })
+            }, encrypt=False)
             return JSONResponse(
                 content={
                     "access_token": access_token,

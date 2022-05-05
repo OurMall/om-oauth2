@@ -19,7 +19,7 @@ class UserSignup(UserLogin):
     middle_name: str | None
     gender: Gender
     phone_number: str
-    birthdate: int | datetime.date
+    birthdate: datetime.datetime | str
     zoneinfo: str
     locale: str
 
