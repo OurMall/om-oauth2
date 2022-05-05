@@ -10,7 +10,7 @@ def decode_authorization_header(
     authorization: str = Header(...),
     jwt_provider: JSONWebTokenService = Depends(get_jwt_provider())
 ) -> dict[str, object]:
-    token: str | bytes = authorization.split(' ')[1] # ['Bearer', 'jwt'] = 'jwt'
+    token: str | bytes = authorization.split(' ')[1]
     if isinstance(token, (str, bytes)):
         if not token:
             raise HTTPException(

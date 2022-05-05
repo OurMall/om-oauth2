@@ -1,5 +1,4 @@
 import datetime
-import pymongo
 from pydantic import Field
 from beanie import Document, Insert, Replace, Indexed, after_event, before_event
 

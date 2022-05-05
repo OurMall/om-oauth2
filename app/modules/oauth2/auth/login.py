@@ -1,7 +1,6 @@
 import datetime
 from fastapi import APIRouter, Request, HTTPException, Depends
 from fastapi.responses import Response, JSONResponse
-from passlib.context import CryptContext
 
 from app.services import JSONWebTokenService, AuthService
 from app.common import User
