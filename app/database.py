@@ -21,7 +21,7 @@ async def init():
     )
 
 async def insert_base_models():
-    """console_client = Client(
+    console_client = Client(
         application_id="well-known-console-client",
         application_secret="1098306124",
         redirect_uris=["http://localhost:4201/callback", "http://localhost:4201/console"],
@@ -35,21 +35,21 @@ async def insert_base_models():
         subject_type="public",
         is_known=True,
         created_at=datetime.datetime.now()
-    )"""
-    #await console_client.insert(skip_actions=['set_app_credentials'])
+    )
+    await console_client.insert(skip_actions=['set_app_credentials'])
     base_permission = Permission(
         code_name="base",
         name="Base",
         description="Permiso base para todos los usuarios del sistema"
     )
-    #await base_permission.insert()
+    await base_permission.insert()
     client_user_group = Group(
         code_name="client",
         name="Cliente",
         description="Grupo de clientes que existen en la aplicación. También se toma como grupo/rol base",
         permissions=[base_permission]
     )
-    #await client_user_group.insert()
+    await client_user_group.insert()
     
 
 async def delete_base_models():
