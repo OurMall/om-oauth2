@@ -41,8 +41,8 @@ class User(Document):
     profile: Profile = Field(None)
     address: Address = Field(None)
     birthdate: datetime.datetime | str
-    zoneinfo: str
-    locale: str
+    zoneinfo: str | None
+    locale: str | None
     email_verified: bool = Field(False)
     phone_number_verified: bool = Field(False)
     is_blocked: bool = Field(False)
@@ -56,7 +56,7 @@ class User(Document):
     
     @before_event(Insert)
     def join_fullname(self):
-        self.name = f"{self.given_name.strip()} {self.middle_name.strip() if self.middle_name else ''} {self.family_name.strip()}"
+        self.name = f"{self.given_name.strip()}{self.middle_name.strip() if self.middle_name else ' '}{self.family_name.strip()}"
     
     @after_event(Replace)
     def change_updated_at(self):
