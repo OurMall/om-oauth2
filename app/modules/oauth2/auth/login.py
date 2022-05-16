@@ -4,7 +4,7 @@ from fastapi.responses import Response, JSONResponse
 
 from app.services import JSONWebTokenService, AuthService
 from app.common import User
-from app.common.dependencies import jwt
+from app.common.dependencies import jwt, security
 from app.common.models.user_model import UserLogin
 
 router = APIRouter(
@@ -16,7 +16,7 @@ async def login(
     request: Request,
     user_credentials: UserLogin,
     payload: dict[str, object] = Depends(jwt.decode_authorization_header),
-    is_known: bool = Depends(jwt.is_known_client),
+    is_known: bool = Depends(security.is_known_client),
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
 ) -> Response:
     user = await User.find_one(User.email == user_credentials.email)

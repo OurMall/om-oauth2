@@ -51,7 +51,7 @@ async def authorize_known_client(
             detail={
                 "status": "fail",
                 "response": {
-                    "message": "Client didn't exist"
+                    "message": "Unknown client"
                 }
             },
         )
@@ -65,12 +65,9 @@ async def authorize_known_client(
                 }
             },
             headers={
-                "WWW-Authenticate": "Bearer",
-                "Authentication": "Bearer"
+                "knownAuthorization": "Bearer",
             }
         )
-    # TODO:// Create JWT for Known Client authorization
-    # TODO:// PASS the access known token to the login endpoint
     expiration = datetime.timedelta(minutes=60)
     known_token: str | bytes = jwt_provider.encode({
         "application_id": client.application_id,

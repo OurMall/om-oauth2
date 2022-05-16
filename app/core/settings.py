@@ -26,6 +26,14 @@ class _Settings(BaseSettings):
     PROJECT_SECRET_KEY: str
     
     """
+        :constants SMTP - credentials for SMTP server.
+    """
+    SMTP_HOSTNAME: str
+    SMTP_PORT: int
+    SMTP_USERNAME: str
+    SMTP_PASSWORD: str
+    
+    """
         :validators - specify if the environment variables are correct.
     """
     @validator("MONGO_URI", pre=True, always=True)
