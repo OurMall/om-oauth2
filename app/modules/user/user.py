@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Body, Depends, Query, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.common import User
+from app.common import User, Group
 from app.common.models.user_model import UserPartialUpdate
 from app.common.dependencies import security, user
 
@@ -36,7 +36,7 @@ async def me(
         status_code=200
     )
 
-@router.get("/verify_account", response_model=None, status_code=200)
+@router.get("/verifyAccount", response_model=None, status_code=200)
 async def verify_account(
     token: str = Query(...),
 ):
@@ -63,9 +63,9 @@ async def edit_user(
     ))
     pass
 
-@router.post("/users/groups", response_model=None, status_code=201)
+@router.post("/group", response_model=None, status_code=201)
 async def add_user_groups(
-    group: str = Body(...),
+    code_name: str = Body(...),
     user: User = Depends(user.get_user(current=True))
 ):
     if not user:
@@ -78,7 +78,8 @@ async def add_user_groups(
                 }
             }
         )
-    user.groups.append(group)
+    exitented_group: Group = await Group.find_one(Group.code_name == code_name)
+    user.groups.append(exitented_group)
     await user.save()
     return JSONResponse(
         content={

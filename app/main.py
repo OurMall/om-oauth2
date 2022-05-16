@@ -40,4 +40,4 @@ async def on_startup():
 @app.on_event("shutdown")
 async def on_shutdown():
     print("Shutdown application...")
-    #await database.delete_base_models()
+    await database.delete_base_models()
