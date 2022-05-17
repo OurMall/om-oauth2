@@ -12,7 +12,17 @@ def decode_authorization_header(
 ) -> dict[str, object]:
     access_token: str | bytes = authorization.split(' ')[1]
     if not access_token:
-        return None
+        #return None
+        #TODO: delete if error.
+        raise HTTPException(
+            status_code=401,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "No access token provided"
+                }
+            }
+        )
     payload: dict[str, object] = jwt_provider.decode(
         encoded=access_token,
         validate=True

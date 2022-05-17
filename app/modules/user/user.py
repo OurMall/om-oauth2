@@ -1,9 +1,10 @@
-from fastapi import APIRouter, Body, Depends, Query, HTTPException
+from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.common import User, Group
+from app.services import JSONWebTokenService
+from app.common.dependencies import security, user, jwt
 from app.common.models.user_model import UserPartialUpdate
-from app.common.dependencies import security, user
 
 router = APIRouter(
     prefix="/user",
@@ -36,11 +37,38 @@ async def me(
         status_code=200
     )
 
-@router.get("/verifyAccount", response_model=None, status_code=200)
+@router.post("/verifyAccount", response_model=None, status_code=200)
 async def verify_account(
-    token: str = Query(...),
+    token: str = Body(..., title="Token", description="Token for account validation"),
+    user: User = Depends(user.get_user(current=True)),
+    jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
 ):
-    pass
+    jwt_provider.decode(
+        encoded=token,
+        validate=True
+    )
+    if user.email_verified:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "user is already verified"
+                }
+            }
+        )
+    await user.set({ User.email_verified: True })
+    await user.save()
+    return JSONResponse(
+        content={
+            "status": "success",
+            "response": {
+                "message": "user was verified"
+            }
+        },
+        status_code=200
+    )
+    
 
 @router.patch("/{id}", response_model=None, status_code=201)
 async def edit_user(
@@ -78,8 +106,8 @@ async def add_user_groups(
                 }
             }
         )
-    exitented_group: Group = await Group.find_one(Group.code_name == code_name)
-    user.groups.append(exitented_group)
+    existented_group: Group = await Group.find_one(Group.code_name == code_name)
+    user.groups.append(existented_group)
     await user.save()
     return JSONResponse(
         content={

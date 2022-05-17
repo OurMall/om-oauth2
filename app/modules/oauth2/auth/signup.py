@@ -48,13 +48,6 @@ async def signup(
         )
         await User.insert_one(new_user)
         if new_user:
-            background_tasks.add_task(
-                email_client.send_email,
-                new_user.email,
-                "Bienvenido a Our Mall",
-                message="Hola bienvenido, per",
-                format="html"
-            )
             expiration = datetime.timedelta(days=1)
             access_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
@@ -72,6 +65,17 @@ async def signup(
                 "azp": payload["application_id"],
                 "exp": datetime.datetime.utcnow() + (expiration*2)
             }, encrypt=False)
+            background_tasks.add_task(
+                email_client.send_email,
+                new_user.email,
+                "Bienvenido a Our Mall",
+                message="""
+                    Hola, bienvenido a Our Mall
+                    <br>
+                    <a href="http://localhost:4200/verifyAccount?token={0}">Verificar cuenta</a>
+                """.format(access_token),
+                format="html"
+            )
             return JSONResponse(
                 content={
                     "access_token": access_token,
