@@ -12,8 +12,6 @@ def decode_authorization_header(
 ) -> dict[str, object]:
     access_token: str | bytes = authorization.split(' ')[1]
     if not access_token:
-        #return None
-        #TODO: delete if error.
         raise HTTPException(
             status_code=401,
             detail={

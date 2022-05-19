@@ -35,7 +35,7 @@ async def login(
             expiration = datetime.timedelta(days=1)
             access_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
-                "sub": user.email,
+                "sub": user.id.__str__(),
                 "aud": [
                     f"{str(request.base_url)}/connect/userinfo"
                 ],

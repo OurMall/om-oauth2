@@ -1,6 +1,6 @@
 from fastapi import Depends, HTTPException
 
-from .jwt import decode_known_token, decode_authorization_header, get_jwt_provider
+from .jwt import decode_known_token, decode_authorization_header
 
 def is_known_client(
     payload: dict[str, object] = Depends(decode_known_token),

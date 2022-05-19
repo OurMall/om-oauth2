@@ -49,7 +49,7 @@ class User(Document):
     is_disabled: bool = Field(False)
     created_at: int | datetime.datetime = Field(datetime.datetime.now())
     updated_at: int | datetime.datetime = Field(datetime.datetime.now())
-    groups: list[Link[Group]]
+    groups: list[Link[Group]] = Field([])
     permissions: list[Link[Permission]] = Field([]) # TODO:// pass to have to
     #clients: list[Link[Client]] = Field(None)
     #favorites: list[Link[Product]]
