@@ -4,7 +4,15 @@ from motor.motor_asyncio import AsyncIOMotorClient
 
 from . import settings
 
-from app.common import User, Permission, Group, Client
+from app.common import (
+    User, 
+    Permission, 
+    Group, 
+    Client, 
+    Category, 
+    Workspace, 
+    Service
+)
 
 async def init():
     client = AsyncIOMotorClient(
@@ -17,13 +25,17 @@ async def init():
             User,
             Permission,
             Group,
-            Client
+            Client,
+            Category,
+            Workspace,
+            Service
         ]
     )
 
 async def insert_base_models():
-    await _create_init_clients()
-    await _create_init_roles()
+    await _create_init_services()
+    #await _create_init_clients()
+    #await _create_init_roles()
 
 async def delete_base_models():
     await Client.find().delete_many()
@@ -85,3 +97,35 @@ async def _create_init_roles() -> None:
         permissions=[base_permission]
     )
     await Group.insert_many([client, seller])
+
+async def _create_init_services() -> None:
+    notifications = Service(
+        code_name="notifications",
+        name="Notificaciones",
+        description="Publica notificaciones en tu espacio de trabajo para todos los suscriptores del mismo",
+        activate=True
+    )
+    products = Service(
+        code_name="products",
+        name="Inventario de productos",
+        description="Gestiona los productos que manejes y muestralos al público",
+        activate=True
+    )
+    cash_register = Service(
+        code_name="cash_register",
+        name="Sistema de caja",
+        description="Gestiona tus ventas diarias y genera facturas",
+        activate=False
+    )
+    sales = Service(
+        code_name="sales",
+        name="Ventas en línea",
+        description="Vende tus productos en línea y recibe el dinero por la compra",
+        activate=False
+    )
+    await Service.insert_many([
+        notifications,
+        products,
+        cash_register,
+        sales
+    ])

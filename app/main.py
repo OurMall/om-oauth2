@@ -6,6 +6,9 @@ from .common import Client
 from .modules.oauth2 import oauth2
 from .modules.connect import connect
 from .modules.user import user
+from .modules.workspace import workspace
+from .modules.category import category
+from .modules.service import service
 
 app = create_application()
 
@@ -22,6 +25,21 @@ app.include_router(
 app.include_router(
     router=user.router,
     tags=["User Endpoints"]
+)
+
+app.include_router(
+    router=workspace.router,
+    tags=["Workspaces"]
+)
+
+app.include_router(
+    router=category.router,
+    tags=["Categories"]
+)
+
+app.include_router(
+    router=service.router,
+    tags=["Services"]
 )
 
 @app.on_event("startup")

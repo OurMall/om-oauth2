@@ -39,8 +39,8 @@ async def account(
             status_code=200
         )
 
-@router.post("/verify", response_model=None, status_code=200)
-async def verify(
+@router.post("/verify", response_model=None, status_code=201)
+async def verify_account(
     token: str = Body(..., title="Token", description="Token for account validation"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header),
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
@@ -81,5 +81,5 @@ async def verify(
                     "message": "user was verified"
                 }
             },
-            status_code=200
+            status_code=201
         )

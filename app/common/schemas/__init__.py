@@ -16,4 +16,7 @@ class Address(BaseModel):
     postal_code: str | None
     country: str | None
 
-__all__ = ["Address"]
+class SocialMedia(BaseModel):
+    name: str | None
+    url: str | None
+    logo_uri: str | None

@@ -38,9 +38,11 @@ def has_permissions(code_name: list[str] | str):
         code_name = [code_name]
     async def _has_permissions(payload: dict[str, object] = Depends(decode_authorization_header)):
         user = await User.get(payload.get("sub"), fetch_links=True)
-        for _ in code_name:#range(0, len(code_name)):
-            user_permissions = [str(permission.code_name) for permission in user.permissions]
-            if not user_permissions == code_name:
+        user_permissions = [str(permission.code_name) for permission in user.permissions]
+        for permission in code_name:
+            try:
+                user_permissions.index(permission)
+            except:
                 raise HTTPException(
                     status_code=403,
                     detail={
@@ -59,27 +61,18 @@ def has_groups(code_name: list[str] | str):
     async def _has_groups(payload: dict[str, object] = Depends(decode_authorization_header)):
         user = await User.get(payload.get("sub"), fetch_links=True)
         user_groups = [str(group.code_name) for group in user.groups]
-        if not code_name in user_groups:
-            raise HTTPException(
-                status_code=403,
-                detail={
-                    "status": "fail",
-                    "response": {
-                        "message": "User not in the valid group"
-                    }
-                }
-            )
-        return True
-        """for i in range(0, len(code_name)):
-            user_groups = [str(group.code_name) for group in user.groups]
-            if not user_groups[i] in code_name:
+        for group in code_name:
+            try:
+                user_groups.index(group)
+            except:
                 raise HTTPException(
                     status_code=403,
                     detail={
                         "status": "fail",
                         "response": {
-                            "message": "User not in the valid group"
+                            "message": "User not in the required group"
                         }
                     }
-                )"""
+                )
+        return True
     return _has_groups
