@@ -15,7 +15,7 @@ router = APIRouter(
 async def login(
     request: Request,
     user_credentials: UserLogin,
-    payload: dict[str, object] = Depends(jwt.decode_authorization_header),
+    payload: dict[str, object] = Depends(jwt.decode_known_token),
     is_known: bool = Depends(security.is_known_client),
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
 ) -> Response:
