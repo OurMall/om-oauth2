@@ -2,7 +2,7 @@ from fastapi import APIRouter, Body, Depends, HTTPException
 from fastapi.responses import JSONResponse
 
 from app.common import User, Group
-from app.common.dependencies import security, user, jwt
+from app.common.dependencies import security, jwt
 from app.common.models.user_model import UserPartialUpdate
 
 from .account import account
@@ -66,7 +66,7 @@ async def add_user_groups(
             detail={
                 "status": "fail",
                 "response": {
-                    "message": "An error was ocurred"
+                    "message": "An error was ocurred",
                 }
             }
         )

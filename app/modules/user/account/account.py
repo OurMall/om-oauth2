@@ -1,9 +1,11 @@
+from pymongo.collection import ObjectId
 from fastapi import APIRouter, HTTPException, Depends, Body
 from fastapi.responses import JSONResponse
 
 from app.common import User
 from app.services import JSONWebTokenService
 from app.common.dependencies import jwt, user
+from app.common.models.user_model import UserModel
 
 router = APIRouter(
     prefix="/account",
@@ -18,7 +20,8 @@ async def account(
 ):
     try:
         current_user = await User.get(payload.get("sub"), fetch_links=True)
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=400,
             detail={
@@ -29,15 +32,25 @@ async def account(
             }
         )
     else:
-        return JSONResponse(
-            content={
-                "status": "success",
-                "response": {
-                    "user": current_user
-                }
-            },
-            status_code=200
+       return current_user.dict(
+            exclude={
+                "id",
+                "permissions",
+                "groups"
+            }
         )
+"""exclude={
+    "id": True,
+    "permissions": {"__all__": {"id"}}, 
+    "groups": {
+        "__all__": {
+            "id": True, "permissions": {
+                "__all__": {"id"}
+            }
+        },
+        "permissions": {"__all__": {"id"}}
+    }
+}"""
 
 @router.post("/verify", response_model=None, status_code=201)
 async def verify_account(
