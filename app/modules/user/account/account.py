@@ -1,4 +1,3 @@
-from pymongo.collection import ObjectId
 from fastapi import APIRouter, HTTPException, Depends, Body
 from fastapi.responses import JSONResponse
 
