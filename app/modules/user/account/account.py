@@ -19,8 +19,7 @@ async def account(
 ):
     try:
         current_user = await User.get(payload.get("sub"), fetch_links=True)
-    except Exception as e:
-        print(e)
+    except:
         raise HTTPException(
             status_code=400,
             detail={
@@ -34,6 +33,7 @@ async def account(
        return current_user.dict(
             exclude={
                 "id",
+                "password",
                 "permissions",
                 "groups"
             }
@@ -62,7 +62,7 @@ async def verify_account(
         validate=True
     )
     user = await User.get(payload.get("sub"), fetch_links=True)
-    if user.email_verified:
+    if user.email_verified.__bool__():
         raise HTTPException(
             status_code=400,
             detail={

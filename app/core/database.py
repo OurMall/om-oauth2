@@ -11,6 +11,7 @@ from app.common import (
     Client, 
     Category, 
     Workspace, 
+    WorkspaceProfile,
     Service
 )
 
@@ -28,6 +29,7 @@ async def init():
             Client,
             Category,
             Workspace,
+            WorkspaceProfile,
             Service
         ]
     )

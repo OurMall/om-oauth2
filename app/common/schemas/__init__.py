@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 class BaseSchema(BaseModel):
     ...
@@ -9,12 +9,12 @@ class BaseSchema(BaseModel):
         validate_assignment=True
 
 class Address(BaseModel):
-    formatted: str | None
-    street_address: str | None
-    locality: str | None
-    region: str | None
-    postal_code: str | None
-    country: str | None
+    formatted: str | None = Field(None, title="Formatted", description="Complete address formatted")
+    street_address: str | None = Field(None, title="Street", description="Street address")
+    locality: str | None = Field(None, title="Locality", description="Address locality")
+    region: str | None = Field(None, title="Region", description="Address region")
+    postal_code: str | None = Field(None, title="Postal Code", description="Address postal code")
+    country: str | None = Field(None, title="Country", description="Address country")
 
 class SocialMedia(BaseModel):
     name: str | None

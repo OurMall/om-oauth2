@@ -11,18 +11,19 @@ from .client_model import ClientModel
 from app.common import Gender
 
 class UserLogin(BaseModel):
-    email: str = Field(...)
-    password: str = Field(...)
+    email: str = Field(..., title="Email", description="User unique email address")
+    password: str = Field(..., title="Password", description="User password for credentials")
     
 class UserSignup(UserLogin):
-    given_name: str = Field(...)
-    family_name: str = Field(...)
-    middle_name: str | None = Field(None)
-    gender: Gender = Field(...)
-    phone_number: str = Field(...)
-    birthdate: datetime.datetime | str = Field(...)
-    zoneinfo: str | None = Field(None)
-    locale: str | None = Field(None)
+    given_name: str = Field(..., title="Given Name", description="User given name")
+    family_name: str = Field(..., title="Family Name", description="User lastname or family name")
+    gender: Gender = Field(..., title="Gender", description="User gender")
+    phone_number: str = Field(..., title="Phone Number", description="User phone number")
+    birthdate: datetime.datetime | str = Field(..., title="Birthdate", description="User birthdate")
+    profile: Profile | None = Field(None, title="Profile", description="User profile information")
+    middle_name: str | None = Field(None, title="Middle Name", description="User middle name")
+    zoneinfo: str | None = Field(None, title="Zoneinfo", description="User zoneinfo description")
+    locale: str | None = Field(None, title="Locale", description="User locale language")
 
 class UserModel(UserSignup):
     pass
@@ -34,4 +35,3 @@ class UserPartialUpdate(BaseModel):
     phone_number: str | None
     Profile: Profile | None
     address: Address | None
-    

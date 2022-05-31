@@ -68,7 +68,7 @@ async def authorize_known_client(
                 "knownAuthorization": "Bearer",
             }
         )
-    expiration = datetime.timedelta(minutes=60)
+    expiration = datetime.timedelta(days=1)
     known_token: str | bytes = jwt_provider.encode({
         "application_id": client.application_id,
         "is_known": client.is_known,

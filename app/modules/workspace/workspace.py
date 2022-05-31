@@ -1,8 +1,9 @@
 from beanie import WriteRules
+from beanie.operators import In
 from fastapi import APIRouter, Response, Depends, Query, Path, HTTPException
 from fastapi.responses import JSONResponse
 
-from app.common import Workspace, WorkspaceProfile, Category
+from app.common import User, Workspace, WorkspaceProfile, Category, Service
 from app.common.dependencies import jwt, user, security
 from app.common.models.workspace_model import WorkspaceCreate, WorkspaceModel
 
@@ -44,7 +45,7 @@ async def workspaces(
 
 @router.get("/{id}", response_model=WorkspaceModel, status_code=200)
 async def workspace(
-    id: str
+    id: str = Path(...)
 ) -> Response:
     try:
         workspace: Workspace = await Workspace.find_one(
@@ -75,33 +76,52 @@ async def workspace(
     Depends(user.has_groups("seller"))
 ])
 async def create_workspace(
-    workspace: WorkspaceCreate
+    workspace: WorkspaceCreate,
+    owner: User = Depends(user.get_user(current=True, fetch_links=True))
 ) -> Response:
     existented_workspace = await Workspace.find(
         Workspace.profile.name == workspace.profile.name
     ).first_or_none()
     if not existented_workspace:
-        category = await Category.find_one(Category.id == workspace.category)
-        try:
-            new_workspace = Workspace(
-                category=category,
-                profile=WorkspaceProfile(
-                    name=workspace.profile.name,
-                    description=workspace.profile.description,
-                    slogan=workspace.profile.slogan,
-                    logo=workspace.profile.logo,
-                ),
-                services=workspace.services,
-                tags=workspace.tags
-            )
-            await Workspace.insert_one(new_workspace, link_rule=WriteRules.WRITE)
-        except:
+        if len(owner.workspaces) > 1:
             raise HTTPException(
                 status_code=400,
                 detail={
                     "status": "fail",
                     "response": {
-                        "message": "Something went wrong"
+                        "message": "Already you have a workspace"
+                    }
+                }
+            )
+        try:
+            category: Category = await Category.find_one(Category.name == workspace.category)
+            services: list[Service] = await Service.find(
+                In(Service.code_name, workspace.services)
+            ).to_list()
+            workspace_profile = WorkspaceProfile(
+                name=workspace.profile.name,
+                description=workspace.profile.description,
+                slogan=workspace.profile.slogan,
+                logo=workspace.profile.logo,
+            )
+            await WorkspaceProfile.insert_one(workspace_profile)
+            new_workspace = Workspace(
+                category=category,
+                profile=workspace_profile,
+                services=services,
+                tags=workspace.tags
+            )
+            await Workspace.insert_one(new_workspace)
+            owner.workspaces.append(new_workspace)
+            await owner.save()
+        except Exception as e:
+            print(e)
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "status": "fail",
+                    "response": {
+                        "message": "Something went wrong",
                     }
                 }
             )

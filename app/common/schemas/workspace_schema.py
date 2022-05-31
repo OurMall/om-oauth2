@@ -4,16 +4,17 @@ from beanie import Document, Link, Indexed, Replace, after_event
 
 from . import Address, SocialMedia
 from .category_schema import Category
+from .service_schema import Service
 
 class WorkspaceProfile(Document):
-    name: Indexed(str, unique=True)
-    description: str
-    slogan: str
-    logo: str
-    background_color: str
-    images: list[str]
-    social_media: list[SocialMedia]
-    address: Address
+    name: Indexed(str, unique=True) = Field(..., title="Name", description="Workspace unique name")
+    description: str = Field(..., title="Description", description="Workspace work description")
+    slogan: str | None = Field(None, title="Slogan", description="Workspace slogan")
+    logo: str = Field(..., title="Logo", description="Workspace logo url")
+    background_color: str | None = Field(None, title="Background", description="Workspace custom background")
+    images: list[str] | None = Field(None, title="Images", description="Workspace phisical place images")
+    social_media: list[SocialMedia] | None = Field(None, title="Social Media", description="Workspace social media")
+    address: Address | None = Field(None, title="Address", description="Workspace address")
     
     class Collection:
         name = "workspacesProfiles"
@@ -22,13 +23,13 @@ class WorkspaceProfile(Document):
         validate_on_save = True
 
 class Workspace(Document):
-    category: Link[Category]
-    profile: Link[WorkspaceProfile]
-    tags: list[str]
-    services: list[str] # Change to services
-    suscribers: list[str] # Change to users
-    products: list[str] # Change to products
-    notifications: list[str] # Change to notifications
+    category: Link[Category] = Field(..., title="Category", description="Workspace category")
+    profile: Link[WorkspaceProfile] = Field(..., title="Profile", description="Workspace profile data")
+    tags: list[str] | None = Field(None, title="Tags", description="Workspace tags")
+    services: list[Link[Service]] = Field(..., title="Services", description="Workspace enabled services")
+    suscribers: list[str] = Field([]) # Change to users
+    products: list[str] = Field([]) # Change to products
+    notifications: list[str] = Field([]) # Change to notifications
     is_verified: bool = Field(False, title="Verification", description="Workspace verification")
     created_at: datetime.datetime | str = Field(datetime.datetime.now(), title="Created AT", description="Workspace creation date")
     updated_at: datetime.datetime | str = Field(datetime.datetime.now(), title="Updated AT", description="Workspace last update")

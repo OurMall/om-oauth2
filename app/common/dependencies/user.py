@@ -4,7 +4,7 @@ from app.common import User
 
 from .jwt import decode_authorization_header
 
-def get_user(current: bool, id: str | None=None):
+def get_user(current: bool, fetch_links: bool=False, id: str | None=None):
     async def _get_user(
         payload: dict[str, object] = Depends(decode_authorization_header)
     ) -> User:
@@ -12,7 +12,7 @@ def get_user(current: bool, id: str | None=None):
             user_id = payload.get("sub")
         else:
             user_id = id if id is not None else payload.get("sub")
-        user = await User.get(user_id)
+        user = await User.get(user_id, fetch_links=fetch_links)
         if not user:
             return None
         return user

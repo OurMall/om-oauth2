@@ -25,7 +25,7 @@ def decode_authorization_header(
         encoded=access_token,
         validate=True
     )
-    return payload
+    return dict(payload)
 
 def decode_known_token(
     knownAuthorization: str = Header(..., title="Known Authorization", description="Known token in known authorization header"),

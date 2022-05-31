@@ -6,12 +6,13 @@ from app.services import JSONWebTokenService, AuthService, email_client
 from app.common import User, Profile, Group
 from app.common.dependencies import jwt, security
 from app.common.models.user_model import UserSignup
+from app.common.models.response_model import SuccessResponseModel
 
 router = APIRouter(
     prefix="/signup"
 )
 
-@router.post("/", response_model=None, status_code=200, summary="Signup", description="User registration")
+@router.post("/", response_model=SuccessResponseModel, status_code=201, summary="Signup", description="User registration")
 async def signup(
     request: Request,
     user_credentials: UserSignup,
@@ -33,21 +34,35 @@ async def signup(
                 }
             )
         group = await Group.find_one(Group.code_name == "client")
-        new_user = User(
-            given_name=user_credentials.given_name,
-            family_name=user_credentials.family_name,
-            middle_name=user_credentials.middle_name,
-            gender=user_credentials.gender,
-            email=user_credentials.email,
-            password=AuthService.hash_password(user_credentials.password),
-            phone_number=user_credentials.phone_number,
-            birthdate=user_credentials.birthdate,
-            zoneinfo=user_credentials.zoneinfo,
-            locale=user_credentials.locale,
-            groups=[group]
-        )
-        await User.insert_one(new_user)
-        if new_user:
+        try:
+            new_user = User(
+                given_name=user_credentials.given_name,
+                family_name=user_credentials.family_name,
+                middle_name=user_credentials.middle_name,
+                gender=user_credentials.gender,
+                email=user_credentials.email,
+                password=AuthService.hash_password(user_credentials.password),
+                phone_number=user_credentials.phone_number,
+                profile=Profile(
+                    picture=user_credentials.profile.picture
+                ),
+                birthdate=user_credentials.birthdate,
+                zoneinfo=user_credentials.zoneinfo,
+                locale=user_credentials.locale,
+                groups=[group]
+            )
+            await User.insert_one(new_user)
+        except Exception:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "status": "fail",
+                    "response": {
+                        "message": "Something went wrong"
+                    }
+                }
+            )
+        else:
             expiration = datetime.timedelta(days=1)
             access_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
@@ -72,7 +87,7 @@ async def signup(
                 message="""
                     Hola, bienvenido a Our Mall
                     <br>
-                    <a href="http://localhost:4200/verifyAccount?token={0}">Verificar cuenta</a>
+                    <a href="http://localhost:4200/profile/verifyAccount?token={0}">Verificar cuenta</a>
                 """.format(access_token),
                 format="html"
             )
@@ -83,21 +98,12 @@ async def signup(
                     "expires_in": expiration.total_seconds(),
                     "token_type": "Bearer"
                 },
-                status_code=200,
+                status_code=201,
                 headers={
                     "Authorization": f"Bearer {access_token}",
                     "WWW-Authenticate": f"Bearer {access_token}"
                 }
             )
-        raise HTTPException(
-            status_code=400,
-            detail={
-                "status": "fail",
-                "response": {
-                    "message": "Can't create the user"
-                }
-            }
-        )
     raise HTTPException(
         status_code=401,
         detail={
