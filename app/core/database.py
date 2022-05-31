@@ -35,9 +35,10 @@ async def init():
     )
 
 async def insert_base_models():
-    await _create_init_services()
+    #await _create_init_services()
     #await _create_init_clients()
     #await _create_init_roles()
+    await _create_init_categories()
 
 async def delete_base_models():
     await Client.find().delete_many()
@@ -131,3 +132,10 @@ async def _create_init_services() -> None:
         cash_register,
         sales
     ])
+
+async def _create_init_categories():
+    food = Category(
+        name="Comidas",
+        description="Todo lo relacionado a comidas"
+    )
+    await Category.insert_one(food)

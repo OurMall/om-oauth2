@@ -4,7 +4,7 @@ from app.common import User
 
 from .jwt import decode_authorization_header
 
-def get_user(current: bool, fetch_links: bool=False, id: str | None=None):
+def get_user(current: bool, fetch_links: bool=False, id: str | None=None, **kwds):
     async def _get_user(
         payload: dict[str, object] = Depends(decode_authorization_header)
     ) -> User:
@@ -12,7 +12,7 @@ def get_user(current: bool, fetch_links: bool=False, id: str | None=None):
             user_id = payload.get("sub")
         else:
             user_id = id if id is not None else payload.get("sub")
-        user = await User.get(user_id, fetch_links=fetch_links)
+        user = await User.get(user_id, fetch_links=fetch_links, ignore_cache=kwds.get("ignore_cache"))
         if not user:
             return None
         return user
@@ -58,9 +58,12 @@ def has_permissions(code_name: list[str] | str):
 def has_groups(code_name: list[str] | str):
     if(isinstance(code_name, str)):
         code_name = [code_name]
-    async def _has_groups(payload: dict[str, object] = Depends(decode_authorization_header)):
-        user = await User.get(payload.get("sub"), fetch_links=True)
-        user_groups = [str(group.code_name) for group in user.groups]
+    async def _has_groups(
+        user: User = Depends(get_user(current=True, fetch_links=True, ignore_cache=True))
+    ):
+        #user = await User.get(payload.get("sub"), fetch_links=True)
+        user_groups = [group.code_name for group in user.groups]
+        print(user_groups)
         for group in code_name:
             try:
                 user_groups.index(group)

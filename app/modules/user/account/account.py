@@ -34,22 +34,11 @@ async def account(
             exclude={
                 "id",
                 "password",
+                "workspaces",
                 "permissions",
                 "groups"
             }
         )
-"""exclude={
-    "id": True,
-    "permissions": {"__all__": {"id"}}, 
-    "groups": {
-        "__all__": {
-            "id": True, "permissions": {
-                "__all__": {"id"}
-            }
-        },
-        "permissions": {"__all__": {"id"}}
-    }
-}"""
 
 @router.post("/verify", response_model=None, status_code=201)
 async def verify_account(
