@@ -33,7 +33,7 @@ class Profile(BaseSchema):
 
 class User(Document):
     #id: PyObjectId = Field(default_factory=PyObjectId)
-    id: PydanticObjectId
+    id: PydanticObjectId = Field(default_factory=PydanticObjectId)
     name: str | None = Field(None, title="Name", description="User complete name")
     given_name: str = Field(..., title="Given Name", description="User given name")
     family_name: str = Field(..., title="Family Name", description="User family name")

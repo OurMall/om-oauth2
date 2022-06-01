@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Body
 from fastapi.responses import JSONResponse
 
+from app.core import HttpResponse
 from app.common import User
 from app.services import JSONWebTokenService
 from app.common.dependencies import jwt, user
@@ -12,6 +13,12 @@ router = APIRouter(
         Depends(user.has_groups("client"))
     ]
 )
+
+EMAIL_RECOVERY_FORMAT = """
+    <h2>
+        hasdjLSDJAS
+    </h2>
+"""
 
 @router.get("/", response_model=None, status_code=200)
 async def account(
@@ -30,11 +37,16 @@ async def account(
             }
         )
     else:
+        """return HttpResponse(
+            status_code=200, 
+            body=current_user.dict()
+        ).response()"""
+        print(current_user.dict())
         return current_user.dict(
                 exclude={
                     #"id",
                     "password",
-                    #"workspaces",
+                    "workspaces",
                     "permissions",
                     "groups"
                 }

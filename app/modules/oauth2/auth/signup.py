@@ -52,7 +52,8 @@ async def signup(
                 groups=[group]
             )
             await User.insert_one(new_user)
-        except Exception:
+        except Exception as e:
+            print(e)
             raise HTTPException(
                 status_code=400,
                 detail={

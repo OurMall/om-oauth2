@@ -114,7 +114,8 @@ async def create_workspace(
             await Workspace.insert_one(new_workspace)
             owner.workspaces.append(new_workspace)
             await owner.save()
-        except Exception:
+        except Exception as e:
+            print(e)
             raise HTTPException(
                 status_code=400,
                 detail={
