@@ -77,7 +77,7 @@ async def workspace(
 ])
 async def create_workspace(
     workspace: WorkspaceCreate,
-    owner: User = Depends(user.get_user(current=True, fetch_links=True))
+    owner: User = Depends(user.get_user(current=True, fetch_links=True, ignore_cache=True))
 ) -> Response:
     existented_workspace = await Workspace.find(
         Workspace.profile.name == workspace.profile.name
@@ -114,8 +114,7 @@ async def create_workspace(
             await Workspace.insert_one(new_workspace)
             owner.workspaces.append(new_workspace)
             await owner.save()
-        except Exception as e:
-            print(e)
+        except Exception:
             raise HTTPException(
                 status_code=400,
                 detail={

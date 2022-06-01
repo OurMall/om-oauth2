@@ -1,9 +1,10 @@
 import pymongo
 import datetime
 from pydantic import Field
-from beanie import Document, Indexed, after_event, Replace
+from beanie import Document, Indexed, PydanticObjectId, after_event, Replace
 
 class Permission(Document):
+    id: PydanticObjectId
     code_name: Indexed(str, index_type=pymongo.ASCENDING, unique=True)
     name: str
     description: str | None
@@ -16,3 +17,8 @@ class Permission(Document):
     
     class Collection:
         name = "permissions"
+    
+    class Config:
+        json_encoders = {
+            id: lambda v: v.__str__()
+        }

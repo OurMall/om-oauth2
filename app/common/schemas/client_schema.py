@@ -40,3 +40,8 @@ class Client(Document):
     
     class Settings:
         validate_on_save = True
+    
+    class Config:
+        json_encoders = {
+            id: lambda v: v.__str__()
+        }

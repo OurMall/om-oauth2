@@ -59,7 +59,7 @@ async def add_user_groups(
     try:
         group = await Group.find_one(Group.code_name == code_name)
         user.groups.append(group)
-        await user.save()
+        await user.replace()
     except:
         raise HTTPException(
             status_code=400,

@@ -3,7 +3,7 @@ from pydantic import Field, validator
 
 from app.common import Address, Profile
 
-from . import BaseModel
+from . import BaseModel, PyObjectId
 from .permission_model import Permission
 from .group_model import Group
 from .client_model import ClientModel
@@ -26,7 +26,8 @@ class UserSignup(UserLogin):
     locale: str | None = Field(None, title="Locale", description="User locale language")
 
 class UserModel(UserSignup):
-    pass
+    id: PyObjectId = Field(default_factory=PyObjectId)
+    workspaces: list[object]
 
 class UserPartialUpdate(BaseModel):
     given_name: str | None

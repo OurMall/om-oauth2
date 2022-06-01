@@ -30,15 +30,15 @@ async def account(
             }
         )
     else:
-       return current_user.dict(
-            exclude={
-                "id",
-                "password",
-                "workspaces",
-                "permissions",
-                "groups"
-            }
-        )
+        return current_user.dict(
+                exclude={
+                    #"id",
+                    "password",
+                    #"workspaces",
+                    "permissions",
+                    "groups"
+                }
+            )
 
 @router.post("/verify", response_model=None, status_code=201)
 async def verify_account(

@@ -36,8 +36,9 @@ def verify_account(
 def has_permissions(code_name: list[str] | str):
     if(isinstance(code_name, str)):
         code_name = [code_name]
-    async def _has_permissions(payload: dict[str, object] = Depends(decode_authorization_header)):
-        user = await User.get(payload.get("sub"), fetch_links=True)
+    async def _has_permissions(
+        user: User = Depends(get_user(current=True, fetch_links=True, ignore_cache=True))
+    ):
         user_permissions = [str(permission.code_name) for permission in user.permissions]
         for permission in code_name:
             try:
@@ -61,9 +62,7 @@ def has_groups(code_name: list[str] | str):
     async def _has_groups(
         user: User = Depends(get_user(current=True, fetch_links=True, ignore_cache=True))
     ):
-        #user = await User.get(payload.get("sub"), fetch_links=True)
         user_groups = [group.code_name for group in user.groups]
-        print(user_groups)
         for group in code_name:
             try:
                 user_groups.index(group)
