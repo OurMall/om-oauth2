@@ -1,13 +1,15 @@
 import datetime
+from beanie import PydanticObjectId
 from pydantic import Field
 
 from . import BaseModel
 
 class CategoryCreate(BaseModel):
-    name: str = Field(..., title="Name", description="Category unique name")
-    description: str = Field(..., max_length=300, title="Description", description="Description for category")
+    code_name: str = Field(None)
+    name: str = Field(None)
+    description: str = Field(None)
 
 class CategoryModel(CategoryCreate):
-    id: object
-    created_at: datetime.datetime | str
-    updated_at: datetime.datetime | str
+    id: PydanticObjectId = Field(None)
+    created_at: int | datetime.datetime = Field(None)
+    updated_at: int | datetime.datetime = Field(None)

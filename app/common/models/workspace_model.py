@@ -1,23 +1,32 @@
-from . import BaseModel
+import datetime
+from beanie import PydanticObjectId
+from pydantic import Field
 
 from app.common import Address, SocialMedia
 
+from . import BaseModel
+from .service_model import ServiceModel
+from .category_model import CategoryModel
+
 class WorkspaceProfileModel(BaseModel):
-    name: str
-    description: str
-    slogan: str | None
-    logo: str
-    background_color: str | None
-    images: list[str] | None
-    social_media: list[SocialMedia] | None
-    address: Address | None
+    name: str = Field(None)
+    description: str = Field(None)
+    slogan: str = Field(None)
+    logo: str = Field(None)
+    background_color: str = Field(None)
+    images: list[str] = Field([])
+    social_media: list[SocialMedia] = Field([])
+    address: Address = Field(None)
 
 class WorkspaceCreate(BaseModel):
-    category: str
-    profile: WorkspaceProfileModel
-    services: list[str]
-    tags: list[str] | None
-    owner: str | None
+    category: CategoryModel = Field(None)
+    profile: WorkspaceProfileModel = Field(None)
+    services: list[ServiceModel] = Field([])
+    tags: list[str] = Field([])
+    owner: str = Field(None)
 
-class WorkspaceModel(BaseModel):
-    pass
+class WorkspaceModel(WorkspaceCreate):
+    id: PydanticObjectId = Field(None)
+    is_verified: bool = Field(None)
+    created_at: int | datetime.datetime = Field(None)
+    updated_at: int | datetime.datetime = Field(None)

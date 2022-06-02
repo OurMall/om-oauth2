@@ -94,20 +94,18 @@ async def create_workspace(
                 }
             )
         try:
-            category: Category = await Category.find_one(Category.name == workspace.category)
+            category: Category = await Category.find_one(Category.code_name == workspace.category.code_name)
             services: list[Service] = await Service.find(
                 In(Service.code_name, workspace.services)
             ).to_list()
-            workspace_profile = WorkspaceProfile(
-                name=workspace.profile.name,
-                description=workspace.profile.description,
-                slogan=workspace.profile.slogan,
-                logo=workspace.profile.logo,
-            )
-            await WorkspaceProfile.insert_one(workspace_profile)
             new_workspace = Workspace(
                 category=category,
-                profile=workspace_profile,
+                profile=WorkspaceProfile(
+                    name=workspace.profile.name,
+                    description=workspace.profile.description,
+                    slogan=workspace.profile.slogan,
+                    logo=workspace.profile.logo,
+                ),
                 services=services,
                 tags=workspace.tags
             )

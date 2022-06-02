@@ -45,21 +45,15 @@ async def add_user_groups(
     code_name: str = Body(..., title="Code Name", description="Code name for the group to add"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header)
 ):
-    user = await User.get(payload.get("sub"), fetch_links=True)
-    if not user:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "status": "fail",
-                "response": {
-                    "message": "Not found user"
-                }
-            }
-        )
     try:
         group = await Group.find_one(Group.code_name == code_name)
+        user = await User.get(
+            document_id=payload.get("sub"), 
+            fetch_links=True,
+            ignore_cache=True
+        )
         user.groups.append(group)
-        await user.replace()
+        await user.save()
     except:
         raise HTTPException(
             status_code=400,

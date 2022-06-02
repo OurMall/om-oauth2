@@ -11,7 +11,6 @@ from app.common import (
     Client, 
     Category, 
     Workspace, 
-    WorkspaceProfile,
     Service
 )
 
@@ -29,7 +28,6 @@ async def init():
             Client,
             Category,
             Workspace,
-            WorkspaceProfile,
             Service
         ]
     )
@@ -135,7 +133,15 @@ async def _create_init_services() -> None:
 
 async def _create_init_categories():
     food = Category(
+        code_name="food",
         name="Comidas",
         description="Todo lo relacionado a comidas"
     )
-    await Category.insert_one(food)
+    clothes = Category(
+        code_name="clothes",
+        name="Ropa",
+        description="Todo lo relacionado con ropa"
+    )
+    await Category.insert_many([
+        food, clothes
+    ])

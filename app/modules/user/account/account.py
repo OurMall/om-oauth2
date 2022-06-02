@@ -14,18 +14,16 @@ router = APIRouter(
     ]
 )
 
-EMAIL_RECOVERY_FORMAT = """
-    <h2>
-        hasdjLSDJAS
-    </h2>
-"""
-
 @router.get("/", response_model=None, status_code=200)
 async def account(
     payload: dict[str, object] = Depends(jwt.decode_authorization_header)
 ):
     try:
-        current_user = await User.get(payload.get("sub"), fetch_links=True)
+        current_user = await User.get(
+            document_id=payload.get("sub"), 
+            fetch_links=True, 
+            ignore_cache=True
+        )
     except:
         raise HTTPException(
             status_code=400,
@@ -37,20 +35,16 @@ async def account(
             }
         )
     else:
-        """return HttpResponse(
+        user = UserModel(**current_user.dict())
+        return HttpResponse(
             status_code=200, 
-            body=current_user.dict()
-        ).response()"""
-        print(current_user.dict())
-        return current_user.dict(
+            body=user.dict(
                 exclude={
-                    #"id",
-                    "password",
-                    "workspaces",
-                    "permissions",
-                    "groups"
-                }
+                    "password"
+                },
+                exclude_none=True
             )
+        ).response()
 
 @router.post("/verify", response_model=None, status_code=201)
 async def verify_account(

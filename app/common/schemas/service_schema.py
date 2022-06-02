@@ -1,9 +1,8 @@
 import datetime
 from pydantic import Field
-from beanie import Document, PydanticObjectId, Replace, Indexed, after_event
+from beanie import Document, Replace, Indexed, after_event
 
 class Service(Document):
-    id: PydanticObjectId = Field(default_factory=PydanticObjectId)
     code_name: Indexed(str, unique=True)
     name: Indexed(str)
     description: str
@@ -20,8 +19,3 @@ class Service(Document):
     
     class Settings:
         validate_on_save = True
-        
-    class Config:
-        json_encoders = {
-            id: lambda v: v.__str__()
-        }

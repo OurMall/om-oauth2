@@ -1,13 +1,12 @@
 import datetime
 from pydantic import Field
-from beanie import Document, Link, Indexed, PydanticObjectId, Replace, after_event
+from beanie import Document, Link, Indexed, Replace, after_event
 
-from . import Address, SocialMedia
+from . import BaseSchema, Address, SocialMedia
 from .category_schema import Category
 from .service_schema import Service
 
-class WorkspaceProfile(Document):
-    id: PydanticObjectId = Field(default_factory=PydanticObjectId)
+class WorkspaceProfile(BaseSchema):
     name: Indexed(str, unique=True) = Field(..., title="Name", description="Workspace unique name")
     description: str = Field(..., title="Description", description="Workspace work description")
     slogan: str | None = Field(None, title="Slogan", description="Workspace slogan")
@@ -17,22 +16,10 @@ class WorkspaceProfile(Document):
     social_media: list[SocialMedia] | None = Field([], title="Social Media", description="Workspace social media")
     address: Address | None = Field(None, title="Address", description="Workspace address")
     
-    class Collection:
-        name = "workspacesProfiles"
-    
-    class Settings:
-        validate_on_save = True
-    
-    class Config:
-        json_encoders = {
-            id: lambda v: v.__str__()
-        }
-
 class Workspace(Document):
-    id: PydanticObjectId = Field(default_factory=PydanticObjectId)
     category: Link[Category] = Field(..., title="Category", description="Workspace category")
-    profile: Link[WorkspaceProfile] = Field(..., title="Profile", description="Workspace profile data")
-    tags: list[str] | None = Field(None, title="Tags", description="Workspace tags")
+    profile: WorkspaceProfile = Field(..., title="Profile", description="Workspace profile data")
+    tags: list[str] | None = Field([], title="Tags", description="Workspace tags")
     services: list[Link[Service]] = Field(..., title="Services", description="Workspace enabled services")
     suscribers: list[str] = Field([]) # Change to users
     products: list[str] = Field([]) # Change to products
@@ -55,8 +42,3 @@ class Workspace(Document):
         use_cache = True
         cache_expiration_time = datetime.timedelta(seconds=60)
         cache_capacity = 5
-        
-    class Config:
-        json_encoders = {
-            id: lambda v: v.__str__()
-        }

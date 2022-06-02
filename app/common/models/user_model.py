@@ -1,33 +1,47 @@
 import datetime
-from pydantic import Field, validator
+from beanie import PydanticObjectId
+from pydantic import Field
 
 from app.common import Address, Profile
 
-from . import BaseModel, PyObjectId
-from .permission_model import Permission
-from .group_model import Group
+from . import BaseModel
+from .permission_model import PermissionModel
+from .group_model import GroupModel
 from .client_model import ClientModel
+from .workspace_model import WorkspaceModel
 
 from app.common import Gender
 
 class UserLogin(BaseModel):
-    email: str = Field(..., title="Email", description="User unique email address")
-    password: str = Field(..., title="Password", description="User password for credentials")
+    email: str = Field(...)
+    password: str = Field(...)
     
 class UserSignup(UserLogin):
-    given_name: str = Field(..., title="Given Name", description="User given name")
-    family_name: str = Field(..., title="Family Name", description="User lastname or family name")
-    gender: Gender = Field(..., title="Gender", description="User gender")
-    phone_number: str = Field(..., title="Phone Number", description="User phone number")
-    birthdate: datetime.datetime | str = Field(..., title="Birthdate", description="User birthdate")
-    profile: Profile | None = Field(None, title="Profile", description="User profile information")
-    middle_name: str | None = Field(None, title="Middle Name", description="User middle name")
-    zoneinfo: str | None = Field(None, title="Zoneinfo", description="User zoneinfo description")
-    locale: str | None = Field(None, title="Locale", description="User locale language")
+    given_name: str = Field(...)
+    family_name: str = Field(...)
+    gender: Gender = Field(...)
+    phone_number: str = Field(...)
+    profile: Profile | None = Field(None)
+    birthdate: datetime.datetime | str = Field(...)
+    zoneinfo: str | None = Field(None)
+    locale: str | None = Field(None)
 
 class UserModel(UserSignup):
-    id: PyObjectId = Field(default_factory=PyObjectId)
-    workspaces: list[object]
+    id: PydanticObjectId = Field(...)
+    name: str = Field(...)
+    middle_name: str | None = Field(None)
+    nickname: str | None = Field(None)
+    preferred_username: str | None = Field(None)
+    address: Address | None = Field(None)
+    email_verified: bool = Field(False)
+    phone_number_verified: bool = Field(False)
+    is_blocked: bool = Field(False)
+    is_disabled: bool = Field(False)
+    created_at: datetime.datetime | None = Field(None)
+    updated_at: datetime.datetime | None = Field(None)
+    workspaces: list[WorkspaceModel] = Field([])
+    groups: list[GroupModel] = Field([])
+    permissions: list[PermissionModel] = Field([])
 
 class UserPartialUpdate(BaseModel):
     given_name: str | None

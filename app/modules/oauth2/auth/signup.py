@@ -38,7 +38,6 @@ async def signup(
             new_user = User(
                 given_name=user_credentials.given_name,
                 family_name=user_credentials.family_name,
-                middle_name=user_credentials.middle_name,
                 gender=user_credentials.gender,
                 email=user_credentials.email,
                 password=AuthService.hash_password(user_credentials.password),
@@ -52,8 +51,7 @@ async def signup(
                 groups=[group]
             )
             await User.insert_one(new_user)
-        except Exception as e:
-            print(e)
+        except Exception:
             raise HTTPException(
                 status_code=400,
                 detail={

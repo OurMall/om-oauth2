@@ -1,18 +1,16 @@
-import pymongo
 import datetime
 from pydantic import Field
-from beanie import Document, Link, Indexed, PydanticObjectId, after_event, Replace
+from beanie import Document, Link, Indexed, after_event, Replace
 
 from .permission_schema import Permission
 
 class Group(Document):
-    id: PydanticObjectId
-    code_name: Indexed(str, index_type=pymongo.ASCENDING, unique=True)
-    name: str
-    description: str | None
-    permissions: list[Link[Permission]]
-    created_at: int | datetime.datetime = Field(datetime.datetime.now())
-    updated_at: int | datetime.datetime = Field(datetime.datetime.now())
+    code_name: Indexed(str, unique=True) = Field(..., title="Code Name", description="Group code name")
+    name: str = Field(..., title="Name", description="Group name")
+    description: str = Field(..., title="Description", description="Group description")
+    permissions: list[Link[Permission]] = Field([], title="Permissions", description="Group permissions")
+    created_at: int | datetime.datetime = Field(datetime.datetime.now(), title="Created AT", description="Group creation date")
+    updated_at: int | datetime.datetime = Field(datetime.datetime.now(), title="Updated AT", description="Group last updated")
     
     @after_event(Replace)
     def change_updated_at(self):
@@ -20,8 +18,3 @@ class Group(Document):
     
     class Collection:
         name = "groups"
-    
-    class Config:
-        json_encoders = {
-            id: lambda v: v.__str__()
-        }

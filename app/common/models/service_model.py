@@ -1,16 +1,16 @@
 import datetime
-from typing import Any
+from beanie import PydanticObjectId
 from pydantic import Field
 
 from . import BaseModel
 
 class ServiceCreate(BaseModel):
-    code_name: str = Field(..., title="Code Name", description="Service code name")
-    name: str = Field(..., title="Name", description="Service name")
-    description: str = Field(..., title="Description", description="Service description")
-    activate: bool = Field(False, title="Activation", description="Service activation type")
+    code_name: str = Field(None)
+    name: str = Field(None)
+    description: str = Field(None)
+    activate: bool = Field(False)
 
 class ServiceModel(ServiceCreate):
-    id: Any
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    id: PydanticObjectId = Field(None)
+    created_at: int | datetime.datetime = Field(None)
+    updated_at: int | datetime.datetime = Field(None)

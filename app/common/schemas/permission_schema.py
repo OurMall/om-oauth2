@@ -1,15 +1,13 @@
-import pymongo
 import datetime
 from pydantic import Field
-from beanie import Document, Indexed, PydanticObjectId, after_event, Replace
+from beanie import Document, Indexed, after_event, Replace
 
 class Permission(Document):
-    id: PydanticObjectId
-    code_name: Indexed(str, index_type=pymongo.ASCENDING, unique=True)
-    name: str
-    description: str | None
-    created_at: int | datetime.datetime = Field(datetime.datetime.now())
-    updated_at: int | datetime.datetime = Field(datetime.datetime.now())
+    code_name: Indexed(str, unique=True) = Field(..., title="Code Name", description="Permission code name")
+    name: str = Field(..., title="Name", description="Permission name")
+    description: str = Field(..., title="Description", description="Permissions description")
+    created_at: int | datetime.datetime = Field(datetime.datetime.now(), title="Created AT", description="Permission creation date")
+    updated_at: int | datetime.datetime = Field(datetime.datetime.now(), title="Updated AT", description="Permission last updated")
     
     @after_event(Replace)
     def change_updated_at(self):
@@ -17,8 +15,3 @@ class Permission(Document):
     
     class Collection:
         name = "permissions"
-    
-    class Config:
-        json_encoders = {
-            id: lambda v: v.__str__()
-        }

@@ -1,5 +1,6 @@
 import json
 from beanie import PydanticObjectId
+from pymongo.collection import ObjectId
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from starlette.status import *
@@ -7,9 +8,9 @@ from starlette.status import *
 class OJSONEncoder(json.JSONEncoder):
     
     def default(self, o: object) -> object:
-        if isinstance(o, PydanticObjectId):
+        if isinstance(o, (ObjectId, PydanticObjectId)):
             return str(o)
-        return super().default(o)
+        return json.JSONEncoder.default(self, o)
 
 class HttpResponse:
     
@@ -29,8 +30,7 @@ class HttpResponse:
         self._body = body
     
     def response(self) -> JSONResponse:
-        #compatible_body = jsonable_encoder(self.body)
-        compatible_body = json.dump(self.body, cls=OJSONEncoder)
+        compatible_body = jsonable_encoder(self.body)
         response = JSONResponse(
             content=compatible_body,
             status_code=self.status_code,

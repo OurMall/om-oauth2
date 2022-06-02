@@ -1,6 +1,5 @@
 import enum
 import datetime
-import pymongo
 from pydantic import Field
 from beanie import (
     Document, 
@@ -10,10 +9,7 @@ from beanie import (
     Indexed,
     before_event,
     after_event,
-    PydanticObjectId
 )
-
-from app.common.models import PyObjectId
 
 from . import BaseSchema, Address
 from .permission_schema import Permission
@@ -32,8 +28,6 @@ class Profile(BaseSchema):
     biography: str | None = Field(None, title="Biography", description="User biography or life description")
 
 class User(Document):
-    #id: PyObjectId = Field(default_factory=PyObjectId)
-    id: PydanticObjectId = Field(default_factory=PydanticObjectId)
     name: str | None = Field(None, title="Name", description="User complete name")
     given_name: str = Field(..., title="Given Name", description="User given name")
     family_name: str = Field(..., title="Family Name", description="User family name")
@@ -80,8 +74,3 @@ class User(Document):
         use_cache = True
         cache_expiration_time = datetime.timedelta(seconds=60)
         cache_capacity = 3
-    
-    class Config:
-        json_encoders = {
-            id: lambda v: v.__str__()
-        }

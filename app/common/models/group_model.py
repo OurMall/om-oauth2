@@ -1,10 +1,17 @@
+import datetime
+from beanie import PydanticObjectId
 from pydantic import Field
 
 from . import BaseModel
-from .permission_model import Permission
+from .permission_model import PermissionModel
 
-class Group(BaseModel):
-    code_name: str = Field(default=None)
-    name: str = Field(default=None)
-    description: str = Field(default=None)
-    permissions: list[Permission] = Field(default=None)
+class GroupCreate(BaseModel):
+    code_name: str = Field(None)
+    name: str = Field(None)
+    description: str = Field(None)
+    permissions: list[PermissionModel] = Field(None)
+
+class GroupModel(GroupCreate):
+    id: PydanticObjectId = Field(None)
+    created_at: int | datetime.datetime = Field(None)
+    updated_at: int | datetime.datetime = Field(None)
