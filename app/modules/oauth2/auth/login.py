@@ -6,12 +6,13 @@ from app.services import JSONWebTokenService, AuthService
 from app.common import User
 from app.common.dependencies import jwt, security
 from app.common.models.user_model import UserLogin
+from app.common.models.response_model import SuccessResponseModel
 
 router = APIRouter(
     prefix="/login"
 )
 
-@router.post("/", response_model=None, status_code=200)
+@router.post("/", response_model=SuccessResponseModel, status_code=200)
 async def login(
     request: Request,
     user_credentials: UserLogin,
@@ -44,7 +45,7 @@ async def login(
                 "exp": datetime.datetime.utcnow() + expiration,
                 "scope": "openid all"
             }, encrypt=True)
-            refresh_token: str | bytes = jwt_provider.encode({ # Is issued for refresh the access token
+            refresh_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
                 "azp": payload["application_id"],
                 "exp": datetime.datetime.utcnow() + (expiration*2)

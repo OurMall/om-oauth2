@@ -65,7 +65,7 @@ async def signup(
             expiration = datetime.timedelta(days=1)
             access_token: str | bytes = jwt_provider.encode({
                 "iss": str(request.base_url),
-                "sub": new_user.id.__str__(), # Convert ObjectID to string.
+                "sub": new_user.id.__str__(),
                 "aud": [
                     f"{str(request.base_url)}/connect/userinfo"
                 ],
