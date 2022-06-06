@@ -1,1 +1,1 @@
-worker: uvicorn app.main:io_app
+web: uvicorn app.main:io_app --host=0.0.0.0 --port=${PORT:-5000}
