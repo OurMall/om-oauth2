@@ -49,7 +49,7 @@ app.include_router(
 async def on_startup():
     print("Server is starting: Production: {0}".format(settings.PRODUCTION))
     await database.init()
-    await database.insert_base_models()
+    #await database.insert_base_models()
     app.add_middleware(
         CORSMiddleware,
         allow_credentials=True,
