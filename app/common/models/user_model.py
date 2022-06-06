@@ -44,9 +44,13 @@ class UserModel(UserSignup):
     permissions: list[PermissionModel] = Field([])
 
 class UserPartialUpdate(BaseModel):
-    given_name: str | None
-    family_name: str | None
-    middle_name: str | None
-    phone_number: str | None
-    Profile: Profile | None
-    address: Address | None
+    given_name: str | None = Field(None)
+    family_name: str | None = Field(None)
+    middle_name: str | None = Field(None)
+    nickname: str | None = Field(None)
+    phone_number: str | None = Field(None)
+    profile: Profile | None = Field(None)
+    address: Address | None = Field(None)
+    email_verified: bool | None = Field(None)
+    phone_number_verified: bool | None = Field(None)
+    is_disabled: bool | None = Field(None)

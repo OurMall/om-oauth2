@@ -1,9 +1,10 @@
+import uvicorn
 from socketio import ASGIApp
 from fastapi.middleware.cors import CORSMiddleware
 
 from .app import create_application
 from .io import create_sio
-from .core import database
+from .core import database, settings
 from .common import Client
 from .modules.oauth2 import oauth2
 from .modules.connect import connect
@@ -47,7 +48,7 @@ app.include_router(
 
 @app.on_event("startup")
 async def on_startup():
-    print("Server is starting...")
+    print("Server is starting: Production: {0}".format(settings.PRODUCTION))
     await database.init()
     #await database.insert_base_models()
     app.add_middleware(
@@ -73,3 +74,10 @@ io_app = ASGIApp(
     socketio_server=sio,
     other_asgi_app=app
 )
+
+if __name__ == '__main__':
+    if settings.PRODUCTION:
+        reload = True
+    else:
+        reload = False
+    uvicorn.run("app.main:io_app", reload=reload, log_level="info")

@@ -1,11 +1,14 @@
-from fastapi import APIRouter, HTTPException, Depends, Body
+from beanie import PydanticObjectId
+from beanie.operators import Set
+from fastapi import APIRouter, HTTPException, Depends, Body, Path
 from fastapi.responses import JSONResponse
 
 from app.core import HttpResponse
 from app.common import User
 from app.services import JSONWebTokenService
 from app.common.dependencies import jwt, user
-from app.common.models.user_model import UserModel
+from app.common.models.user_model import UserModel, UserPartialUpdate
+from app.common.models.response_model import SuccessResponseModel
 
 router = APIRouter(
     prefix="/account",
@@ -44,6 +47,44 @@ async def account(
                 },
                 exclude_none=True
             )
+        ).response()
+
+@router.patch("/{id}", response_model=SuccessResponseModel, status_code=201)
+async def edit_account(
+    changed_account: UserPartialUpdate,
+    id: str = Path(..., title="Identifier", description="User unique identifier")
+):
+    if isinstance(id, (str)):
+        id = PydanticObjectId(id)
+    try:
+        user: User = await User.find_one(
+            User.id == id, 
+            fetch_links=False, 
+            ignore_cache=True
+        )
+        await user.set({ "profile": changed_account.profile.dict(
+            exclude_unset=True,
+            exclude_none=True
+        )})
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=201,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "User account was edited"
+                }
+            }
         ).response()
 
 @router.post("/verify", response_model=None, status_code=201)

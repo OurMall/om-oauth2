@@ -1,10 +1,17 @@
+import os
+from dotenv import load_dotenv
 from pydantic import BaseSettings, validator
+
+#load_dotenv()
+PRODUCTION: bool = os.getenv("PRODUCTION")
 
 """
     :class _Settings - specify all project settings from environment 
     variables.
 """
 class _Settings(BaseSettings):
+    PRODUCTION: bool
+    
     """
         :constants PROJECT - set up environment variables por project
         general information.
@@ -17,6 +24,9 @@ class _Settings(BaseSettings):
         :constants MONGO - specify mongo credentials for DB connection.
     """
     MONGO_PORT: str | int
+    MONGO_HOST: str
+    MONGO_USERNAME: str
+    MONGO_PASSWORD: str
     MONGO_URI: str
     MONGO_DATABASE: str
     
@@ -41,10 +51,14 @@ class _Settings(BaseSettings):
         if isinstance(value, str):
             return value
         else:
-            return f"mongodb://localhost:{value.get('port')}"
+            return f"mongodb+srv://{cls.MONGO_USERNAME}:{cls.MONGO_PASSWORD}@{cls.MONGO_PASSWORD}:{cls.MONGO_PORT}/?retryWrites=true&w=majority"
     
     class Config:
-        env_file: str = ".env.local"
+        if PRODUCTION == True:
+            env_file = ".env"
+        else:
+            env_file = ".env.local"
+        env_encoding = "utf-8"
         case_sensitive: bool = True
 
 settings = _Settings()
