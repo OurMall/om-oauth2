@@ -1,1 +1,1 @@
-web: uvicorn app.main:io_app
+worker: uvicorn app.main:io_app
