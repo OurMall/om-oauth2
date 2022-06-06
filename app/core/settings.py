@@ -49,8 +49,8 @@ class _Settings(BaseSettings):
             return f"mongodb+srv://{cls.MONGO_USERNAME}:{cls.MONGO_PASSWORD}@{cls.MONGO_HOST}/?retryWrites=true&w=majority"
     
     class Config:
-        #env_file = ".env"
-        #env_encoding = "utf-8"
+        env_file = ".env"
+        env_encoding = "utf-8"
         case_sensitive: bool = True
 
 settings = _Settings()

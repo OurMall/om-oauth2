@@ -1,8 +1,7 @@
 import datetime
 from fastapi import HTTPException, APIRouter, Request, Query, Depends
-from fastapi.responses import HTMLResponse, JSONResponse, Response
+from fastapi.responses import JSONResponse, Response
 
-from app.core import templates
 from app.services import JSONWebTokenService
 from app.common import Client
 from app.common.dependencies import jwt
@@ -12,9 +11,8 @@ router = APIRouter(
     prefix="/known"
 )
 
-@router.get("/", response_class=HTMLResponse, status_code=200, summary="Known Client", description="Endpoint for authorize a known client")
+@router.get("/", status_code=200, summary="Known Client", description="Endpoint for authorize a known client")
 async def authorize_known(
-    request: Request,
     token: str = Query(..., title="Client Token", description="Token issued by the authorization server for the client")
 ):
     if not token or not isinstance(token, str):
@@ -30,13 +28,7 @@ async def authorize_known(
                 "WWW-Authenticate": "Bearer"
             }
         )
-    return templates.TemplateResponse(
-        name="modules/login_client.html",
-        context={
-            "request": request
-        },
-        status_code=200
-    )
+    return {"not-allowed": "no allowed"}
 
 @router.post("/", response_model=None, status_code=201)
 async def authorize_known_client(
