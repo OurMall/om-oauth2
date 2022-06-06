@@ -1,4 +1,4 @@
-from .settings import settings, PRODUCTION
+from .settings import settings
 from .http import HttpResponse
 from .templates import templates
 

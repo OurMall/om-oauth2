@@ -1,9 +1,4 @@
-import os
-from dotenv import load_dotenv
 from pydantic import BaseSettings, validator
-
-#load_dotenv()
-PRODUCTION: bool = os.getenv("PRODUCTION")
 
 """
     :class _Settings - specify all project settings from environment 
@@ -51,13 +46,10 @@ class _Settings(BaseSettings):
         if isinstance(value, str):
             return value
         else:
-            return f"mongodb+srv://{cls.MONGO_USERNAME}:{cls.MONGO_PASSWORD}@{cls.MONGO_PASSWORD}:{cls.MONGO_PORT}/?retryWrites=true&w=majority"
+            return f"mongodb+srv://{cls.MONGO_USERNAME}:{cls.MONGO_PASSWORD}@{cls.MONGO_HOST}/?retryWrites=true&w=majority"
     
     class Config:
-        if PRODUCTION == True:
-            env_file = ".env"
-        else:
-            env_file = ".env.local"
+        env_file = ".env"
         env_encoding = "utf-8"
         case_sensitive: bool = True
 

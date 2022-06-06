@@ -33,9 +33,9 @@ async def init():
     )
 
 async def insert_base_models():
-    #await _create_init_services()
-    #await _create_init_clients()
-    #await _create_init_roles()
+    await _create_init_services()
+    await _create_init_clients()
+    await _create_init_roles()
     await _create_init_categories()
 
 async def delete_base_models():
@@ -77,6 +77,22 @@ async def _create_init_clients():
         created_at=datetime.datetime.now()
     )
     await client.insert(skip_actions=['set_app_credentials'])
+    production_client = Client(
+        application_id="well-known-client-production",
+        application_secret="74807f0f24780b21aec0320a53593ebf9f8b08d4",
+        redirect_uris=["https://ourmall.azurewebsites.net/callback", "https://ourmall.azurewebsites.net"],
+        application_type="web",
+        contact="bcastro421@misena.edu.co",
+        application_name="Our Mall",
+        logo_uri="https://ourmall.azurewebsites.net/assets/logos/om-logo.svg",
+        application_uri="https://ourmall.azurewebsites.net",
+        policy_uri="https://ourmall.azurewebsites.net/policy",
+        tos_uri="https://ourmall.azurewebsites.net/terms",
+        subject_type="public",
+        is_known=True,
+        created_at=datetime.datetime.now()
+    )
+    await production_client.insert(skip_actions=['set_app_credentials'])
 
 async def _create_init_roles() -> None:
     base_permission = Permission(
