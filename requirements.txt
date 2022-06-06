@@ -10,3 +10,4 @@ python-dotenv==0.20.0
 reactivex==4.0.0
 passlib[bcrypt]
 uvicorn[standard]
+gunicorn
