@@ -11,3 +11,4 @@ reactivex==4.0.0
 passlib[bcrypt]
 uvicorn[standard]
 gunicorn
+Jinja2
