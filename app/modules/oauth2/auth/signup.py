@@ -81,6 +81,7 @@ async def signup(
             }, encrypt=False)
             background_tasks.add_task(
                 email_client.send_email,
+                # TODO: remove account verification from signup method.
                 new_user.email,
                 "Bienvenido a Our Mall",
                 message="""

@@ -1,11 +1,12 @@
+import datetime
 from beanie import PydanticObjectId
 from beanie.operators import Set
-from fastapi import APIRouter, HTTPException, Depends, Body, Path
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Depends, Body, Path
 from fastapi.responses import JSONResponse
 
 from app.core import HttpResponse
 from app.common import User
-from app.services import JSONWebTokenService
+from app.services import JSONWebTokenService, email_client
 from app.common.dependencies import jwt, user
 from app.common.models.user_model import UserModel, UserPartialUpdate
 from app.common.models.response_model import SuccessResponseModel
@@ -87,7 +88,55 @@ async def edit_account(
             }
         ).response()
 
-@router.post("/verify", response_model=None, status_code=201)
+@router.post("/sendVerification", response_model=SuccessResponseModel, status_code=201)
+async def send_account_verification(
+    request: Request,
+    background_tasks: BackgroundTasks,
+    email: str = Body(...),
+    jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
+):
+    try:
+        user = await User.find_one(User.email == email)
+        expiration = datetime.timedelta(minutes=60)
+        token = jwt_provider.encode({
+            "iss": str(request.base_url),
+            "sub": user.id.__str__(),
+            "iat": datetime.datetime.utcnow(),
+            "exp": datetime.datetime.utcnow() + expiration,
+        }, encrypt=True)
+        background_tasks.add_task(
+            email_client.send_email,
+            user.email,
+            "Verificar cuenta",
+            message="""
+                Hola, bienvenido a Our Mall
+                <br>
+                <a href="http://localhost:4200/profile/verifyAccount?token={0}">Verificar cuenta</a>
+            """.format(token),
+            format="html"
+        )
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Cant send email verification"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=201,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "Account verification sent"
+                }
+            }
+        )
+
+@router.post("/verify", response_model=SuccessResponseModel, status_code=201)
 async def verify_account(
     token: str = Body(..., title="Token", description="Token for account validation"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header),
