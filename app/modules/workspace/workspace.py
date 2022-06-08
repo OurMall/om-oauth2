@@ -1,4 +1,3 @@
-from beanie import WriteRules
 from beanie.operators import In
 from fastapi import APIRouter, Response, Depends, Query, Path, HTTPException
 from fastapi.responses import JSONResponse

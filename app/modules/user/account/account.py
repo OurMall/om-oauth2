@@ -1,8 +1,6 @@
 import datetime
 from beanie import PydanticObjectId
-from beanie.operators import Set
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Depends, Body, Path
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response, Depends, Body, Path
 
 from app.core import HttpResponse
 from app.common import User
@@ -18,10 +16,10 @@ router = APIRouter(
     ]
 )
 
-@router.get("/", response_model=None, status_code=200)
+@router.get("/", response_model=SuccessResponseModel, status_code=200)
 async def account(
     payload: dict[str, object] = Depends(jwt.decode_authorization_header)
-):
+) -> Response:
     try:
         current_user = await User.get(
             document_id=payload.get("sub"), 
@@ -43,6 +41,50 @@ async def account(
         return HttpResponse(
             status_code=200, 
             body=user.dict(
+                exclude={
+                    "password"
+                },
+                exclude_none=True
+            )
+        ).response()
+
+@router.get("/{id}", response_model=SuccessResponseModel, status_code=200)
+async def specific_account(
+    id: str = Path(..., title="ID", description="User to find unique identifier")
+) -> Response:
+    try:
+        if isinstance(id, str):
+            id = PydanticObjectId(id)
+        user = await User.get(
+            document_id=id,
+            ignore_cache=True,
+            fetch_links=True
+        )
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "status": "fail",
+                    "response": {
+                        "message": "User not found"
+                    }
+                }
+            )
+        user_response = UserModel(**user.dict())
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=200,
+            body=user_response.dict(
                 exclude={
                     "password"
                 },
@@ -78,6 +120,7 @@ async def edit_account(
             }
         )
     else:
+        
         return HttpResponse(
             status_code=201,
             body={
@@ -94,7 +137,7 @@ async def send_account_verification(
     background_tasks: BackgroundTasks,
     email: str = Body(...),
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
-):
+) -> Response:
     try:
         user = await User.find_one(User.email == email)
         expiration = datetime.timedelta(minutes=60)
@@ -134,14 +177,14 @@ async def send_account_verification(
                     "message": "Account verification sent"
                 }
             }
-        )
+        ).response()
 
 @router.post("/verify", response_model=SuccessResponseModel, status_code=201)
 async def verify_account(
     token: str = Body(..., title="Token", description="Token for account validation"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header),
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
-):
+) -> Response:
     jwt_provider.decode(
         encoded=token,
         validate=True
@@ -171,12 +214,12 @@ async def verify_account(
             }
         )
     else:
-        return JSONResponse(
-            content={
+        return HttpResponse(
+            status_code=201,
+            body={
                 "status": "success",
                 "response": {
-                    "message": "user was verified"
+                    "message": "User was verified"
                 }
-            },
-            status_code=201
-        )
+            }
+        ).response()

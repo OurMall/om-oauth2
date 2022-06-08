@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 
 from app.common import User, Group
 from app.common.dependencies import security, jwt
-from app.common.models.user_model import UserPartialUpdate
+from app.common.models.response_model import SuccessResponseModel
 
 from .account import account
 
@@ -19,28 +19,7 @@ router.include_router(
     tags=["Account"]
 )
 
-@router.patch("/{id}", response_model=None, status_code=201)
-async def edit_user(
-    id: str,
-    user: UserPartialUpdate
-):
-    existented_user: User = await User.find_one(User.id == id)
-    if not existented_user:
-        raise HTTPException(
-            status_code=404,
-            detail={
-                "status": "fail",
-                "response": {
-                    "message": "Not found user"
-                }
-            }
-        )
-    edited_user: User = await existented_user.set(user.dict(
-        exclude_unset=True
-    ))
-    pass
-
-@router.post("/group", response_model=None, status_code=201)
+@router.post("/group", response_model=SuccessResponseModel, status_code=201)
 async def add_user_groups(
     code_name: str = Body(..., title="Code Name", description="Code name for the group to add"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header)
