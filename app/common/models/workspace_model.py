@@ -23,7 +23,7 @@ class WorkspaceCreate(BaseModel):
     profile: WorkspaceProfileModel = Field(None)
     services: list[ServiceModel] = Field([])
     tags: list[str] = Field([])
-    owner: str = Field(None)
+    #owner: str = Field(None)
 
 class WorkspaceModel(WorkspaceCreate):
     id: PydanticObjectId = Field(None)

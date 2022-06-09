@@ -2,26 +2,41 @@ from beanie.operators import In
 from fastapi import APIRouter, Response, Depends, Query, Path, HTTPException
 from fastapi.responses import JSONResponse
 
+from app.core import HttpResponse
 from app.common import User, Workspace, WorkspaceProfile, Category, Service
 from app.common.dependencies import jwt, user, security
+from app.common.models.response_model import SuccessResponseModel
 from app.common.models.workspace_model import WorkspaceCreate, WorkspaceModel
 
 router = APIRouter(
     prefix="/workspace",
 )
 
-@router.get("/", response_model=list[WorkspaceModel], status_code=200)
+@router.get("/", response_model=SuccessResponseModel, status_code=200)
 async def workspaces(
+    category: str | None = Query(None, title="Category", description="Workspace filter by category"),
     sort: str | None = Query("created_at", title="Order", description="Workspaces order method"),
     limit: int | None = Query(None, title="Limit", description="Workspaces limit"),
     skip: int | None = Query(None, title="Skip", description="Workspace skip"),
 ) -> Response:
     try:
-        workspaces: list[Workspace] = await Workspace.find_all(
-            skip=skip,
-            limit=limit,
-            sort=sort
-        ).project(WorkspaceModel).to_list()
+        print(category)
+        if not category or category == "undefined":
+            workspaces: list[Workspace] = await Workspace.find(
+                skip=skip,
+                limit=limit,
+                sort=sort,
+                fetch_links=True
+            ).to_list()
+        else:
+            workspaces: list[Workspace] = await Workspace.find(
+                Workspace.category.code_name == category,
+                skip=skip,
+                limit=limit,
+                sort=sort,
+                fetch_links=True
+            ).to_list()
+        workspaces_response: list[WorkspaceModel] = [WorkspaceModel(**workspace.dict()) for workspace in workspaces]
     except:
         raise HTTPException(
             status_code=400,
@@ -33,16 +48,12 @@ async def workspaces(
             }
         )
     else:
-        return JSONResponse(
-            content={
-                "status": "success",
-                "response": {
-                    "workspaces": workspaces
-                }
-            }
-        )
+        return HttpResponse(
+            status_code=200,
+            body=workspaces_response
+        ).response()
 
-@router.get("/{id}", response_model=WorkspaceModel, status_code=200)
+@router.get("/{id}", response_model=SuccessResponseModel, status_code=200)
 async def workspace(
     id: str = Path(...)
 ) -> Response:

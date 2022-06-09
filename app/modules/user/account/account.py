@@ -5,15 +5,12 @@ from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response
 from app.core import HttpResponse
 from app.common import User
 from app.services import JSONWebTokenService, email_client
-from app.common.dependencies import jwt, user
+from app.common.dependencies import jwt
 from app.common.models.user_model import UserModel, UserPartialUpdate
 from app.common.models.response_model import SuccessResponseModel
 
 router = APIRouter(
-    prefix="/account",
-    dependencies=[
-        Depends(user.has_groups("client"))
-    ]
+    prefix="/account"
 )
 
 @router.get("/", response_model=SuccessResponseModel, status_code=200)

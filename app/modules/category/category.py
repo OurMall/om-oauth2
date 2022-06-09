@@ -2,14 +2,16 @@ from fastapi import APIRouter, Response, HTTPException, Depends, Query, Path
 from fastapi.responses import JSONResponse
 
 from app.common import Category
-from app.common.dependencies import jwt, user, security
+from app.common.dependencies import user
 from app.common.models.category_model import CategoryCreate, CategoryModel
+from app.common.models.response_model import SuccessResponseModel
+from app.core.http import HttpResponse
 
 router = APIRouter(
     prefix="/category",
 )
 
-@router.get("/", response_model=list[CategoryModel], status_code=200)
+@router.get("/", response_model=SuccessResponseModel, status_code=200)
 async def categories(
     limit: int | None = Query(None, title="Limit", description="Categories limit"),
     sort: str | None = Query("name", title="Order", description="Categories order method"),
@@ -20,7 +22,8 @@ async def categories(
             skip=skip,
             limit=limit,
             sort=sort
-        ).project(CategoryModel).to_list()
+        ).to_list()
+        categories_response: list[CategoryModel] = [CategoryModel(**category.dict()) for category in categories]
     except:
         raise HTTPException(
             status_code=404,
@@ -32,7 +35,10 @@ async def categories(
             }
         )
     else:
-        return categories
+        return HttpResponse(
+            status_code=200,
+            body=categories_response
+        ).response()
 
 @router.get("/{id}", response_model=CategoryModel, status_code=200)
 async def category(
