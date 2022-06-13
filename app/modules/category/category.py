@@ -1,8 +1,9 @@
+from beanie import PydanticObjectId
 from fastapi import APIRouter, Response, HTTPException, Depends, Query, Path
 from fastapi.responses import JSONResponse
 
 from app.common import Category
-from app.common.dependencies import user
+from app.common.dependencies import user, security
 from app.common.models.category_model import CategoryCreate, CategoryModel
 from app.common.models.response_model import SuccessResponseModel
 from app.core.http import HttpResponse
@@ -43,7 +44,7 @@ async def categories(
 @router.get("/{id}", response_model=CategoryModel, status_code=200)
 async def category(
     id: str = Path(..., title="ID", description="Category ID for finding")
-) -> Response:
+) -> Response | HTTPException:
     try:
         category: Category = await Category.find_one(Category.id == id).project(CategoryModel)
     except:
@@ -66,14 +67,18 @@ async def category(
             }
         )
 
-@router.post("/", response_model=None, status_code=201, dependencies=[
-    Depends(user.has_groups("seller"))
+@router.post("/", response_model=SuccessResponseModel, status_code=201, dependencies=[
+    Depends(security.verify),
+    Depends(user.verify_account),
+    Depends(user.has_groups("admin")),
+    Depends(user.has_permissions("categories"))
 ])
 async def create_category(
     category: CategoryCreate,
-) -> Response:
+) -> Response | HTTPException:
     try:
         new_category = Category(
+            code_name=category.code_name,
             name=category.name,
             description=category.description
         )
@@ -84,20 +89,20 @@ async def create_category(
             detail={
                 "status": "fail",
                 "response": {
-                    "message": "An error was ocurred"
+                    "message": "Something went wrong"
                 }
             }
         )
     else:
-        return JSONResponse(
-            content={
+        return HttpResponse(
+            status_code=201,
+            body={
                 "status": "success",
                 "response": {
-                    "message": "Category created"
+                    "message": "Created"
                 }
-            },
-            status_code=201
-        )
+            }
+        ).response()
 
 @router.patch("/{id}", response_model=None, status_code=201)
 async def edit_category(
@@ -111,8 +116,37 @@ async def update_category(
 ) -> Response:
     pass
 
-@router.delete("/{id}", response_model=None, status_code=204)
+@router.delete("/{id}", response_model=None, status_code=204, dependencies=[
+    Depends(security.verify),
+    Depends(user.verify_account),
+    Depends(user.has_groups("admin")),
+    Depends(user.has_permissions("categories"))
+])
 async def delete_category(
-    id: str
-) -> Response:
-    pass
+    id: str = Path(..., title="ID", description="Category unique identifier")
+) -> Response | HTTPException:
+    try:
+        if isinstance(id, str):
+            id = PydanticObjectId(id)
+        category = await Category.find_one(Category.id == id)
+        await category.delete()
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=204,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "Deleted"
+                }
+            }
+        ).response()

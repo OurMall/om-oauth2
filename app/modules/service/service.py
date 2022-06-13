@@ -72,7 +72,7 @@ async def create_service(
     service: ServiceCreate
 ) -> Response | HTTPException:
     existented_service = await Service.find(
-        Service.name == service.name
+        Service.code_name == service.code_name
     ).first_or_none()
     if not existented_service:
         try:

@@ -20,11 +20,11 @@ def get_user(current: bool, fetch_links: bool=False, id: str | None=None, **kwds
         
 def verify_account(
     current_user: User = Depends(get_user(current=True))
-) -> bool:
-    if current_user.email_verified:
+) -> bool | HTTPException:
+    if current_user.email_verified.__bool__():
         return True
     raise HTTPException(
-        status_code=403,
+        status_code=401,
         detail={
             "status": "fail",
             "response": {
