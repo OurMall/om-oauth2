@@ -13,3 +13,4 @@ passlib[bcrypt]
 uvicorn[standard]
 gunicorn
 Jinja2
+websockets==10.1 #websockets==10.2

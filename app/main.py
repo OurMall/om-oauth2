@@ -11,7 +11,6 @@ from .modules.user import user
 from .modules.workspace import workspace
 from .modules.category import category
 from .modules.service import service
-from .namespaces import NotificationNamespace
 
 app = create_application()
 
@@ -64,10 +63,6 @@ async def on_shutdown():
     #await database.delete_base_models()
 
 sio = create_sio()
-
-sio.register_namespace(
-    namespace_handler=NotificationNamespace("/notification")
-)
 
 io_app = ASGIApp(
     socketio_server=sio,

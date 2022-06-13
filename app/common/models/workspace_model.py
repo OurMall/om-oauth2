@@ -21,12 +21,13 @@ class WorkspaceProfileModel(BaseModel):
 class WorkspaceCreate(BaseModel):
     category: CategoryModel = Field(None)
     profile: WorkspaceProfileModel = Field(None)
-    services: list[ServiceModel] = Field([])
+    services: list[str] = Field([])
     tags: list[str] = Field([])
     #owner: str = Field(None)
 
 class WorkspaceModel(WorkspaceCreate):
     id: PydanticObjectId = Field(None)
     is_verified: bool = Field(None)
+    services: list[ServiceModel] = Field([])
     created_at: int | datetime.datetime = Field(None)
     updated_at: int | datetime.datetime = Field(None)

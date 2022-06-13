@@ -1,3 +1,4 @@
+from beanie import PydanticObjectId
 from beanie.operators import In
 from fastapi import APIRouter, Response, Depends, Query, Path, HTTPException
 from fastapi.responses import JSONResponse
@@ -20,7 +21,6 @@ async def workspaces(
     skip: int | None = Query(None, title="Skip", description="Workspace skip"),
 ) -> Response:
     try:
-        print(category)
         if not category or category == "undefined":
             workspaces: list[Workspace] = await Workspace.find(
                 skip=skip,
@@ -55,11 +55,14 @@ async def workspaces(
 
 @router.get("/{id}", response_model=SuccessResponseModel, status_code=200)
 async def workspace(
-    id: str = Path(...)
+    id: str = Path(..., title="ID", description="Workspace unique ID")
 ) -> Response:
     try:
+        if isinstance(id, str):
+            id = PydanticObjectId(id)
         workspace: Workspace = await Workspace.find_one(
-            Workspace.id == id
+            Workspace.id == id,
+            fetch_links=True
         ).project(WorkspaceModel)
     except:
         raise HTTPException(
@@ -72,14 +75,10 @@ async def workspace(
             }
         )
     else:
-        return JSONResponse(
-            content={
-                "status": "success",
-                "response": {
-                    "workspace": workspace
-                }
-            }
-        )
+        return HttpResponse(
+            status_code=200,
+            body=workspace.dict()
+        ).response()
 
 @router.post("/", response_model=None, status_code=201, dependencies=[
     Depends(security.verify),
@@ -122,8 +121,7 @@ async def create_workspace(
             await Workspace.insert_one(new_workspace)
             owner.workspaces.append(new_workspace)
             await owner.save()
-        except Exception as e:
-            print(e)
+        except Exception:
             raise HTTPException(
                 status_code=400,
                 detail={
