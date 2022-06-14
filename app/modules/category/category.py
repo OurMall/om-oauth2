@@ -116,7 +116,7 @@ async def update_category(
 ) -> Response:
     pass
 
-@router.delete("/{id}", response_model=None, status_code=204, dependencies=[
+@router.delete("/{id}", response_model=SuccessResponseModel, status_code=201, dependencies=[
     Depends(security.verify),
     Depends(user.verify_account),
     Depends(user.has_groups("admin")),
@@ -142,7 +142,7 @@ async def delete_category(
         )
     else:
         return HttpResponse(
-            status_code=204,
+            status_code=201,
             body={
                 "status": "success",
                 "response": {

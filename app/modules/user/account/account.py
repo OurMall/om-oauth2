@@ -23,7 +23,8 @@ async def account(
             fetch_links=True, 
             ignore_cache=True
         )
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=400,
             detail={
@@ -186,7 +187,11 @@ async def verify_account(
         encoded=token,
         validate=True
     )
-    user = await User.get(payload.get("sub"), fetch_links=True)
+    user = await User.get(
+        document_id=payload.get("sub"), 
+        fetch_links=True,
+        ignore_cache=True
+    )
     if user.email_verified.__bool__():
         raise HTTPException(
             status_code=400,

@@ -1,6 +1,7 @@
+from beanie import PydanticObjectId
 from fastapi import Depends, HTTPException
 
-from app.common import User
+from app.common import User, Workspace
 
 from .jwt import decode_authorization_header
 
@@ -78,3 +79,19 @@ def has_groups(code_name: list[str] | str):
                 )
         return True
     return _has_groups
+
+def is_owner(workspace: str):
+    if isinstance(workspace, (str)):
+        workspace = PydanticObjectId(workspace)
+    async def _is_owner(
+        user: User = Depends(get_user(
+            current=True,
+            fetch_links=True,
+            ignore_cache=True
+        ))
+    ):
+        user_workspaces: list[Workspace] = [str(workspace.id) for workspace in user.workspaces]
+        if workspace in user_workspaces:
+            return True
+        return False
+    return _is_owner

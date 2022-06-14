@@ -36,9 +36,7 @@ class Workspace(Document):
         name = "workspaces"
     
     class Settings:
-        use_revision = True # This feature helps to avoid losses of data
-        use_state_management = True # Save only changed documents
-        validate_on_save = True # Validate data before save
-        use_cache = True
-        cache_expiration_time = datetime.timedelta(seconds=60)
-        cache_capacity = 5
+        use_revision = True
+        use_state_management = True
+        validate_on_save = True
+        use_cache = False # True

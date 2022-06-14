@@ -1,4 +1,19 @@
+import enum
 from pydantic import BaseModel, Field
+
+class Gender(enum.Enum):
+    MALE="male"
+    FEMALE="female"
+    OTHER="other"
+
+class Currency(enum.Enum):
+    USD='USD'
+    COP='COP'
+
+class ProductStatus(enum.Enum):
+    NEW='new'
+    USED='used'
+    REFURBISHED='refurbished'
 
 class BaseSchema(BaseModel):
     ...
@@ -16,7 +31,11 @@ class Address(BaseSchema): # Change to BaseModel if error
     postal_code: str | None = Field(None, title="Postal Code", description="Address postal code")
     country: str | None = Field(None, title="Country", description="Address country")
 
-class SocialMedia(BaseSchema): # Change to BaseModel if error
+class SocialMedia(BaseSchema):
     name: str | None
     url: str | None
     logo_uri: str | None
+
+class Price(BaseSchema):
+    value: float | int = Field(..., title="Value", description="Price value")
+    currency: Currency = Field(..., title="Currency", description="Price currency")

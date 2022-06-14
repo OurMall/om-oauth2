@@ -1,4 +1,4 @@
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, DeleteRules
 from beanie.operators import In
 from fastapi import APIRouter, Response, Depends, Query, Path, HTTPException
 from fastapi.responses import JSONResponse
@@ -86,7 +86,11 @@ async def workspace(
 ])
 async def create_workspace(
     workspace: WorkspaceCreate,
-    owner: User = Depends(user.get_user(current=True, fetch_links=True, ignore_cache=True))
+    owner: User = Depends(user.get_user(
+        current=True, 
+        fetch_links=True, 
+        ignore_cache=True
+    ))
 ) -> Response:
     existented_workspace = await Workspace.find(
         Workspace.profile.name == workspace.profile.name
@@ -108,6 +112,7 @@ async def create_workspace(
                 In(Service.code_name, workspace.services)
             ).to_list()
             new_workspace = Workspace(
+                #owner=owner.id.__str__(),
                 category=category,
                 profile=WorkspaceProfile(
                     name=workspace.profile.name,
@@ -164,8 +169,38 @@ async def update_workspace(
 ) -> Response:
     pass
 
-@router.delete("/{id}", response_model=None, status_code=204)
+@router.delete("/{id}", response_model=SuccessResponseModel, status_code=201)
 async def delete_workspace(
-    id: str
+    id: str = Path(..., title="ID", description="Unique workspace identifier")
 ) -> Response:
-    pass
+    try:
+        if isinstance(id, str):
+            id = PydanticObjectId(id)
+        workspace = await Workspace.get(
+            document_id=id,
+            ignore_cache=True,
+            fetch_links=True
+        )
+        await workspace.delete(
+            link_rules=DeleteRules.DO_NOTHING
+        )
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=201,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "Deleted"
+                }
+            }
+        ).response()

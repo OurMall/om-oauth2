@@ -11,16 +11,12 @@ from beanie import (
     after_event,
 )
 
-from . import BaseSchema, Address
+from . import BaseSchema, Address, Gender
 from .permission_schema import Permission
 from .group_schema import Group
 from .client_schema import Client
 from .workspace_schema import Workspace
 
-class Gender(enum.Enum):
-    MALE="male"
-    FEMALE="female"
-    OTHER="other"
 
 class Profile(BaseSchema):
     picture: str = Field(..., title="Picture", description="User profile picture")
@@ -68,9 +64,6 @@ class User(Document):
         name = "users"
     
     class Settings:
-        #use_revision = True
         use_state_management = True
         validate_on_save = True
-        use_cache = True
-        cache_expiration_time = datetime.timedelta(seconds=60)
-        cache_capacity = 3
+        use_cache = False
