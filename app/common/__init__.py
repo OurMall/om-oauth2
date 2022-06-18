@@ -6,6 +6,7 @@ from .schemas.client_schema import Client
 from .schemas.workspace_schema import Workspace, WorkspaceProfile
 from .schemas.category_schema import Category
 from .schemas.service_schema import Service
+from .schemas.product_schema import Product
 
 __all__ = [
     "Address",
@@ -17,5 +18,8 @@ __all__ = [
     "Client",
     "Workspace",
     "Category",
-    "SocialMedia"
+    "SocialMedia",
+    "WorkspaceProfile",
+    "Service",
+    "Product"
 ]

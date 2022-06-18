@@ -37,6 +37,11 @@ class _Settings(BaseSettings):
     SMTP_PORT: int
     SMTP_USERNAME: str
     SMTP_PASSWORD: str
+
+    """
+        :constants CLIENT - client endpoints.
+    """
+    CLIENT_ENDPOINT: str
     
     """
         :validators - specify if the environment variables are correct.

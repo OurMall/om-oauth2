@@ -2,10 +2,10 @@ import datetime
 from beanie import PydanticObjectId
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response, Depends, Body, Path
 
-from app.core import HttpResponse
+from app.core import HttpResponse, settings
 from app.common import User
 from app.services import JSONWebTokenService, email_client
-from app.common.dependencies import jwt
+from app.common.dependencies import jwt, security, user
 from app.common.models.user_model import UserModel, UserPartialUpdate
 from app.common.models.response_model import SuccessResponseModel
 
@@ -23,8 +23,7 @@ async def account(
             fetch_links=True, 
             ignore_cache=True
         )
-    except Exception as e:
-        print(e)
+    except:
         raise HTTPException(
             status_code=400,
             detail={
@@ -129,7 +128,10 @@ async def edit_account(
             }
         ).response()
 
-@router.post("/sendVerification", response_model=SuccessResponseModel, status_code=201)
+@router.post("/sendVerification", response_model=SuccessResponseModel, status_code=201, dependencies=[
+    Depends(security.verify),
+    Depends(security.limit_request(delay=2.0))
+])
 async def send_account_verification(
     request: Request,
     background_tasks: BackgroundTasks,
@@ -152,8 +154,8 @@ async def send_account_verification(
             message="""
                 Hola, bienvenido a Our Mall
                 <br>
-                <a href="http://localhost:4200/profile/verifyAccount?token={0}">Verificar cuenta</a>
-            """.format(token),
+                <a href="{0}/profile/verifyAccount?token={1}">Verificar cuenta</a>
+            """.format(settings.CLIENT_ENDPOINT, token),
             format="html"
         )
     except:

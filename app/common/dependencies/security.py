@@ -1,4 +1,5 @@
-from fastapi import Depends, HTTPException
+import time
+from fastapi import Depends, Request, HTTPException
 
 from .jwt import decode_known_token, decode_authorization_header
 
@@ -34,3 +35,10 @@ def verify(
             }
         )
     pass
+
+def limit_request(delay: float):
+    def _limit_request():
+        print("Pass by dependency")
+        time.sleep(delay)
+        return
+    return _limit_request

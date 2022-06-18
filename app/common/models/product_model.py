@@ -14,6 +14,7 @@ class ProductCreate(BaseModel):
     images: list[str] = Field(...)
     status: ProductStatus = Field(...)
     is_available: bool = Field(...)
+    workspace: str = Field(...)
 
 class ProductModel(ProductCreate):
     id: PydanticObjectId = Field(None)

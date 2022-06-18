@@ -1,6 +1,8 @@
 import datetime
+from lib2to3.pgen2 import token
 from fastapi import APIRouter, BackgroundTasks, Request, HTTPException, Depends
 from fastapi.responses import JSONResponse
+from app.core import settings
 
 from app.services import JSONWebTokenService, AuthService, email_client
 from app.common import User, Profile, Group
@@ -16,7 +18,7 @@ router = APIRouter(
 async def signup(
     request: Request,
     user_credentials: UserSignup,
-    background_tasks: BackgroundTasks,
+    #background_tasks: BackgroundTasks,
     payload: dict[str, object] = Depends(jwt.decode_known_token),
     is_known: bool = Depends(security.is_known_client),
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
@@ -79,18 +81,18 @@ async def signup(
                 "azp": payload["application_id"],
                 "exp": datetime.datetime.utcnow() + (expiration*2)
             }, encrypt=False)
-            background_tasks.add_task(
+            """background_tasks.add_task(
                 email_client.send_email,
                 # TODO: remove account verification from signup method.
                 new_user.email,
                 "Bienvenido a Our Mall",
-                message="""
+                message=""
                     Hola, bienvenido a Our Mall
                     <br>
-                    <a href="http://localhost:4200/profile/verifyAccount?token={0}">Verificar cuenta</a>
-                """.format(access_token),
+                    <a href="{0}/profile/verifyAccount?token={1}">Verificar cuenta</a>
+                "".format(settings.CLIENT_ENDPOINT, access_token),
                 format="html"
-            )
+            )"""
             return JSONResponse(
                 content={
                     "access_token": access_token,
