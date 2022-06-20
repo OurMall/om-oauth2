@@ -1,4 +1,3 @@
-import enum
 import datetime
 from pydantic import Field
 from beanie import (
@@ -15,8 +14,8 @@ from . import BaseSchema, Address, Gender
 from .permission_schema import Permission
 from .group_schema import Group
 from .client_schema import Client
+from .product_schema import Product
 from .workspace_schema import Workspace
-
 
 class Profile(BaseSchema):
     picture: str = Field(..., title="Picture", description="User profile picture")
@@ -48,8 +47,8 @@ class User(Document):
     workspaces: list[Link[Workspace]] = Field([], title="Workspaces", description="User created workspaces")
     groups: list[Link[Group]] = Field([], title="Groups", description="User groups or roles")
     permissions: list[Link[Permission]] = Field([], title="Permissions", description="User permissions")
+    favorites: list[Link[Product]] = Field([], title="Favorites", description="User favorite products")
     #clients: list[Link[Client]] = Field([])
-    #favorites: list[Link[Product]] = Field([])
     #rooms: list[Link[Room]] = Field([])
     
     @before_event(Insert)

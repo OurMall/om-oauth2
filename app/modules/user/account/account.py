@@ -130,7 +130,7 @@ async def edit_account(
 
 @router.post("/sendVerification", response_model=SuccessResponseModel, status_code=201, dependencies=[
     Depends(security.verify),
-    Depends(security.limit_request(delay=2.0))
+    Depends(security.limit_request)
 ])
 async def send_account_verification(
     request: Request,

@@ -7,6 +7,7 @@ from app.common import Address, SocialMedia
 from . import BaseModel
 from .service_model import ServiceModel
 from .category_model import CategoryModel
+from .product_model import ProductModel
 
 class WorkspaceProfileModel(BaseModel):
     name: str = Field(None)
@@ -29,5 +30,7 @@ class WorkspaceModel(WorkspaceCreate):
     id: PydanticObjectId = Field(None)
     is_verified: bool = Field(None)
     services: list[ServiceModel] = Field([])
+    suscribers: list[str] = Field([])
+    products: list[ProductModel] = Field([])
     created_at: int | datetime.datetime = Field(None)
     updated_at: int | datetime.datetime = Field(None)

@@ -5,6 +5,7 @@ from beanie import Document, Link, Indexed, Replace, after_event
 from . import BaseSchema, Address, SocialMedia
 from .category_schema import Category
 from .service_schema import Service
+from .product_schema import Product
 
 class WorkspaceProfile(BaseSchema):
     name: Indexed(str, unique=True) = Field(..., title="Name", description="Workspace unique name")
@@ -21,8 +22,8 @@ class Workspace(Document):
     profile: WorkspaceProfile = Field(..., title="Profile", description="Workspace profile data")
     tags: list[str] | None = Field([], title="Tags", description="Workspace tags")
     services: list[Link[Service]] = Field(..., title="Services", description="Workspace enabled services")
-    suscribers: list[str] = Field([]) # Change to users
-    products: list[str] = Field([]) # Change to products
+    suscribers: list[str] = Field([], title="Subscribers", description="Workspace users as subscribers") # Change to users
+    products: list[Link[Product]] = Field([], title="Products", description="Workspaces products") # Change to products
     notifications: list[str] = Field([]) # Change to notifications
     is_verified: bool = Field(False, title="Verification", description="Workspace verification")
     created_at: datetime.datetime | str = Field(datetime.datetime.now(), title="Created AT", description="Workspace creation date")

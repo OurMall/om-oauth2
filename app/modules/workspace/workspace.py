@@ -112,7 +112,6 @@ async def create_workspace(
                 In(Service.code_name, workspace.services)
             ).to_list()
             new_workspace = Workspace(
-                #owner=owner.id.__str__(),
                 category=category,
                 profile=WorkspaceProfile(
                     name=workspace.profile.name,

@@ -11,6 +11,7 @@ from .modules.user import user
 from .modules.workspace import workspace
 from .modules.category import category
 from .modules.service import service
+from .modules.workspace.product import product
 
 app = create_application()
 
@@ -32,6 +33,11 @@ app.include_router(
 app.include_router(
     router=workspace.router,
     tags=["Workspaces"]
+)
+
+app.include_router(
+    router=product.router,
+    tags=["Products"]
 )
 
 app.include_router(

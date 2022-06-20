@@ -25,5 +25,6 @@ class Product(Document):
         name = "products"
     
     class Settings:
+        use_state_management = True
         validate_on_save = True
         use_state_management = True

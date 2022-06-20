@@ -11,7 +11,8 @@ from app.common import (
     Client, 
     Category, 
     Workspace, 
-    Service
+    Service,
+    Product
 )
 
 async def init():
@@ -28,7 +29,8 @@ async def init():
             Client,
             Category,
             Workspace,
-            Service
+            Service,
+            Product
         ]
     )
 

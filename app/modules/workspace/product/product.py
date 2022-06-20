@@ -1,9 +1,12 @@
-from beanie import PydanticObjectId
-from fastapi import APIRouter, Body, Response, HTTPException, Path
+from beanie import PydanticObjectId, WriteRules
+from fastapi import APIRouter, Body, Depends, Query, Response, HTTPException, Path
 
 from app.core import HttpResponse
 from app.common import Product, Workspace
+from app.common.schemas import Price
+from app.common.dependencies import security, user
 from app.common.models.product_model import ProductCreate, ProductModel
+from app.common.models.response_model import SuccessResponseModel
 
 router = APIRouter(
     prefix="/product"
@@ -11,9 +14,9 @@ router = APIRouter(
 
 @router.get("/", response_model=None, status_code=200)
 async def products(
-
+    workspace: str = Query(None, title="Products Workspace", description="Products from workspace"),
 ) -> Response | HTTPException:
-    pass
+    return {"hello": "world"}
 
 @router.get("/{id}", response_model=None, status_code=200)
 async def product(
@@ -21,9 +24,12 @@ async def product(
 ) -> Response | HTTPException:
     pass
 
-@router.post("/", response_model=None, status_code=201)
+@router.post("/", response_model=SuccessResponseModel, status_code=201, dependencies=[
+    Depends(security.verify),
+    Depends(user.has_groups("seller"))
+])
 async def create_product(
-    product_data: ProductCreate = Body(...)
+    product_data: ProductCreate
 ):
     if isinstance(product_data.workspace, str):
         workspace = PydanticObjectId(product_data.workspace)
@@ -38,8 +44,8 @@ async def create_product(
             fetch_links=True
         )
         product_workspace.products.append(new_product)
-        await product_workspace.save()
-    except:
+        await product_workspace.save(link_rule=WriteRules.WRITE, ignore_revision=True)
+    except Exception:
         raise HTTPException(
             status_code=400,
             detail={
@@ -58,7 +64,7 @@ async def create_product(
                     "message": "Product created"
                 }
             }
-        )
+        ).response()
 
 @router.put("/{id}", response_model=None, status_code=201)
 async def update_product(

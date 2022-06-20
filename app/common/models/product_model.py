@@ -7,14 +7,14 @@ from app.common.schemas import Price, ProductStatus
 from . import BaseModel
 
 class ProductCreate(BaseModel):
-    name: str = Field(...)
-    detail: str = Field(...)
-    price: Price = Field(...)
-    stock: int = Field(...)
-    images: list[str] = Field(...)
-    status: ProductStatus = Field(...)
-    is_available: bool = Field(...)
-    workspace: str = Field(...)
+    name: str = Field(None)
+    detail: str = Field(None)
+    price: Price = Field(None)
+    stock: int = Field(None)
+    images: list[str] = Field(None)
+    status: ProductStatus = Field(None)
+    is_available: bool = Field(None)
+    workspace: str = Field(None)
 
 class ProductModel(ProductCreate):
     id: PydanticObjectId = Field(None)
