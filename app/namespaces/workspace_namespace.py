@@ -208,7 +208,7 @@ class WorkspaceNamespace(AsyncNamespace):
     
     async def on_is_subscribed_workspace(self, sid: str, data: dict):
         try:
-            if not data.get('usar'):
+            if not data.get('user'):
                 return await self.emit(
                     event='subscription_status',
                     data={
