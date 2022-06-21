@@ -54,3 +54,8 @@ class UserPartialUpdate(BaseModel):
     email_verified: bool | None = Field(None)
     phone_number_verified: bool | None = Field(None)
     is_disabled: bool | None = Field(None)
+
+class UserResetPassword(BaseModel):
+    token: str = Field(..., title="Token", description="Token provided by email")
+    new_password: str = Field(..., title="New password", description="New password to set in DB", min_length=8)
+    confirm_password: str = Field(..., title="Confirm Password", description="Confirm password repeated for verify", min_length=8)

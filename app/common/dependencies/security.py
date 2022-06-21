@@ -1,6 +1,5 @@
-import time
 from reactivex import Observable, of,  operators as op
-from fastapi import Depends, Request, HTTPException
+from fastapi import Depends, HTTPException
 
 from .jwt import decode_known_token, decode_authorization_header, get_jwt_provider
 

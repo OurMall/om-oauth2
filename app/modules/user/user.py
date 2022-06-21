@@ -9,9 +9,6 @@ from .account import account
 
 router = APIRouter(
     prefix="/user",
-    dependencies=[
-        Depends(security.verify),
-    ]
 )
 
 router.include_router(
@@ -19,7 +16,9 @@ router.include_router(
     tags=["Account"]
 )
 
-@router.post("/group", response_model=SuccessResponseModel, status_code=201)
+@router.post("/group", response_model=SuccessResponseModel, status_code=201, dependencies=[
+    Depends(security.verify)
+])
 async def add_user_groups(
     code_name: str = Body(..., title="Code Name", description="Code name for the group to add"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header)

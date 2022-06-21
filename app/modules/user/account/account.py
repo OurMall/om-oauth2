@@ -1,19 +1,22 @@
 import datetime
+from subprocess import DETACHED_PROCESS
 from beanie import PydanticObjectId
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response, Depends, Body, Path
 
 from app.core import HttpResponse, settings
 from app.common import User
-from app.services import JSONWebTokenService, email_client
+from app.services import JSONWebTokenService, AuthService, email_client
 from app.common.dependencies import jwt, security, user
-from app.common.models.user_model import UserModel, UserPartialUpdate
+from app.common.models.user_model import UserModel, UserPartialUpdate, UserResetPassword
 from app.common.models.response_model import SuccessResponseModel
 
 router = APIRouter(
     prefix="/account"
 )
 
-@router.get("/", response_model=SuccessResponseModel, status_code=200)
+@router.get("/", response_model=SuccessResponseModel, status_code=200, dependencies=[
+    Depends(security.verify)
+])
 async def account(
     payload: dict[str, object] = Depends(jwt.decode_authorization_header)
 ) -> Response:
@@ -89,7 +92,9 @@ async def specific_account(
             )
         ).response()
 
-@router.patch("/{id}", response_model=SuccessResponseModel, status_code=201)
+@router.patch("/{id}", response_model=SuccessResponseModel, status_code=201, dependencies=[
+    Depends(security.verify)
+])
 async def edit_account(
     changed_account: UserPartialUpdate,
     id: str = Path(..., title="Identifier", description="User unique identifier")
@@ -179,7 +184,9 @@ async def send_account_verification(
             }
         ).response()
 
-@router.post("/verify", response_model=SuccessResponseModel, status_code=201)
+@router.post("/verify", response_model=SuccessResponseModel, status_code=201, dependencies=[
+    Depends(security.verify)
+])
 async def verify_account(
     token: str = Body(..., title="Token", description="Token for account validation"),
     payload: dict[str, object] = Depends(jwt.decode_authorization_header),
@@ -227,3 +234,107 @@ async def verify_account(
                 }
             }
         ).response()
+
+@router.post("/forgotPassword", response_model=SuccessResponseModel, status_code=201)
+async def forgot_password(
+    backgroundTasks: BackgroundTasks,
+    email: str = Body(..., title="Email", description="User email for password reset"),
+    jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
+):
+    try:
+        user = await User.find_one(
+            User.email == email,
+        )
+        if not user:
+            raise HTTPException(
+                status_code=401,
+                detail={
+                    "status": "fail",
+                    "response": {
+                        "message": "Not found user"
+                    }
+                }
+            )
+        token: str = jwt_provider.encode({
+            "sub": user.id.__str__(),
+            "email": user.email,
+            "iat": datetime.datetime.now(),
+            "exp": datetime.datetime.now() + datetime.timedelta(minutes=60)
+        }, encrypt=True)
+        backgroundTasks.add_task(
+            email_client.send_email,
+            email,
+            "Resetear contraseña",
+            message="""
+                Parece que has perdido acceso a tu cuenta
+                <a href="{0}/login/resetPassword?token={1}">Resetea tu contraseña</a>
+            """.format(settings.CLIENT_ENDPOINT, token),
+            format="html"
+        )
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=201,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "Email sent"
+                }
+            }
+        ).response()
+
+@router.post("/resetPassword", response_model=SuccessResponseModel, status_code=201)
+async def reset_password(
+    password_credentials: UserResetPassword = Body(...),
+    jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
+):
+    try:
+        payload: dict[str, object] = jwt_provider.decode(
+            password_credentials.token,
+            validate=True
+        )
+        user = await User.get(
+            document_id=payload['sub'],
+        )
+        if not password_credentials.new_password == password_credentials.confirm_password:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "status": "fail",
+                    "response": {
+                        "message": "Not match passwords"
+                    }
+                }
+            )
+        new_password = AuthService.hash_password(password_credentials.new_password)
+        await user.set({User.password: new_password})
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=201,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "Password reset"
+                }
+            }
+        ).response()
+    
