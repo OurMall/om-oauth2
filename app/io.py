@@ -1,4 +1,7 @@
+import json
 from socketio import AsyncServer
+
+from app.common.models import BaseModel
 
 from .namespaces import NotificationNamespace, WorkspaceNamespace
 

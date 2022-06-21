@@ -1,8 +1,9 @@
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, operators as op
 from socketio import AsyncNamespace
 
 from app.common import Workspace, User
 from app.common.models.workspace_model import WorkspaceModel
+from app.common.models.user_model import UserModel
 
 class WorkspaceNamespace(AsyncNamespace):
     
@@ -106,7 +107,8 @@ class WorkspaceNamespace(AsyncNamespace):
                         "response": {
                             "message": "User not logged in"
                         }
-                    }
+                    },
+                    to=sid
                 )
             if isinstance(data['user'], str):
                 data['user'] = PydanticObjectId(data['user'])
@@ -123,7 +125,8 @@ class WorkspaceNamespace(AsyncNamespace):
                         "response": {
                             "message": "User not found"
                         }
-                    }
+                    },
+                    to=sid
                 )
             workspace: Workspace = await Workspace.get(
                 document_id=data['workspace'],
@@ -138,12 +141,50 @@ class WorkspaceNamespace(AsyncNamespace):
                         "data": {
                             "message": "User already suscribed"
                         }
-                    }
+                    },
+                    to=sid
                 )
             workspace.suscribers.append(user.email)
             await workspace.save(
                 ignore_revision=True
             )
+            await self.on_workspace_subscribers(sid=sid, data={"workspace": data['workspace']})
+        except:
+            return await self.emit(
+                event="workspace_error",
+                data={
+                    "status": "fail",
+                    "response": {
+                        "message": "Something went wrong"
+                    }
+                },
+                to=sid
+            )
+        else:
+            return await self.emit(
+                event="subscribed",
+                data={
+                    "status": "success",
+                    "response": {
+                        "message": "User suscribed"
+                    }
+                },
+                to=sid
+            )
+    
+    async def on_workspace_subscribers(self, sid: str, data: dict):
+        try:
+            workspace = await Workspace.get(
+                document_id=data['workspace']
+            )
+            subscribers: list[str] = [subscriber for subscriber in workspace.suscribers]
+            subscribers_from_db: list[User] = await User.find(
+                op.In(User.email, subscribers),
+                fetch_links=False
+            ).to_list()
+            subscribers_response: list[dict] = [UserModel(**subscriber.dict()).dict(
+                exclude={"id", "gender", "created_at", "updated_at"}
+            ) for subscriber in subscribers_from_db]
         except:
             return await self.emit(
                 event="workspace_error",
@@ -156,20 +197,27 @@ class WorkspaceNamespace(AsyncNamespace):
             )
         else:
             return await self.emit(
-                event="subscribed",
+                event="subscribers_list",
                 data={
                     "status": "success",
                     "response": {
-                        "message": "User suscribed"
+                        "subscribers": subscribers_response
                     }
                 }
             )
     
-    async def on_workspace_subscribers(self, sid: str, data: dict):
-        pass
-    
     async def on_is_subscribed_workspace(self, sid: str, data: dict):
         try:
+            if not data.get('usar'):
+                return await self.emit(
+                    event='subscription_status',
+                    data={
+                        "status": "fail",
+                        "response": {
+                            "subscribed": False
+                        }
+                    }
+                )
             user = await User.get(
                 document_id=data['user'],
             )
@@ -207,8 +255,78 @@ class WorkspaceNamespace(AsyncNamespace):
                 }
             )
 
-    async def on_unsubscribe_workspace(self, sid: str):
-        pass
+    async def on_unsubscribe_workspace(self, sid: str, data: dict):
+        try:
+            if not data.get('user'):
+                return await self.emit(
+                    event="not_token",
+                    data={
+                        "status": "fail",
+                        "response": {
+                            "message": "User not logged in"
+                        }
+                    }
+                )
+            if isinstance(data['user'], str):
+                data['user'] = PydanticObjectId(data['user'])
+            user: User = await User.get(
+                document_id=data['user'],
+                fetch_links=True,
+                ignore_cache=True
+            )
+            if not user:
+                return await self.emit(
+                    event="workspace_error",
+                    data={
+                        "status": "fail",
+                        "response": {
+                            "message": "User not found"
+                        }
+                    }
+                )
+            workspace: Workspace = await Workspace.get(
+                document_id=data['workspace'],
+                fetch_links=True,
+                ignore_cache=True
+            )
+            if user.email not in workspace.suscribers:
+                return await self.emit(
+                    event="not_subscribed",
+                    data={
+                        "status": "fail",
+                        "data": {
+                            "message": "User already suscribed"
+                        }
+                    },
+                    to=sid
+                )
+            workspace.suscribers.remove(user.email)
+            await workspace.save(
+                ignore_revision=True
+            )
+            await self.on_workspace_subscribers(sid=sid, data={"workspace": data['workspace']})
+        except:
+            return await self.emit(
+                event="workspace_error",
+                data={
+                    "status": "fail",
+                    "response": {
+                        "message": "Something went wrong"
+                    }
+                },
+                to=sid
+            )
+        else:
+            return await self.emit(
+                event="unsubscribed",
+                data={
+                    "status": "success",
+                    "response": {
+                        "message": "User unsuscribed"
+                    }
+                },
+                to=sid
+            )
     
     async def on_leave_workspace(self, sid: str, data: dict):
         try:
