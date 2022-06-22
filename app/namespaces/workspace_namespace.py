@@ -216,7 +216,8 @@ class WorkspaceNamespace(AsyncNamespace):
                         "response": {
                             "subscribed": False
                         }
-                    }
+                    },
+                    to=sid
                 )
             user = await User.get(
                 document_id=data['user'],
@@ -232,7 +233,8 @@ class WorkspaceNamespace(AsyncNamespace):
                         "response": {
                             "subscribed": True
                         }
-                    }
+                    },
+                    to=sid
                 )
             else:
                 return await self.emit(
@@ -242,7 +244,8 @@ class WorkspaceNamespace(AsyncNamespace):
                         "response": {
                             "subscribed": False
                         }
-                    }
+                    },
+                    to=sid
                 )
         except:
             return await self.emit(

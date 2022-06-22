@@ -1,6 +1,5 @@
 import datetime
-from subprocess import DETACHED_PROCESS
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId, WriteRules
 from fastapi import APIRouter, BackgroundTasks, HTTPException, Request, Response, Depends, Body, Path
 
 from app.core import HttpResponse, settings
@@ -255,11 +254,11 @@ async def forgot_password(
                     }
                 }
             )
-        token: str = jwt_provider.encode({
+        token: str | bytes = jwt_provider.encode({
             "sub": user.id.__str__(),
             "email": user.email,
-            "iat": datetime.datetime.now(),
-            "exp": datetime.datetime.now() + datetime.timedelta(minutes=60)
+            "iat": datetime.datetime.utcnow(),
+            "exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=60)
         }, encrypt=True)
         backgroundTasks.add_task(
             email_client.send_email,
@@ -299,11 +298,11 @@ async def reset_password(
 ):
     try:
         payload: dict[str, object] = jwt_provider.decode(
-            password_credentials.token,
+            encoded=password_credentials.token,
             validate=True
         )
         user = await User.get(
-            document_id=payload['sub'],
+            document_id=payload['sub']
         )
         if not password_credentials.new_password == password_credentials.confirm_password:
             raise HTTPException(
@@ -316,7 +315,10 @@ async def reset_password(
                 }
             )
         new_password = AuthService.hash_password(password_credentials.new_password)
-        await user.set({User.password: new_password})
+        #user.password = new_password
+        await user.set({
+            User.password: new_password
+        })
     except:
         raise HTTPException(
             status_code=400,
