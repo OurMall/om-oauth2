@@ -12,6 +12,7 @@ from .modules.workspace import workspace
 from .modules.category import category
 from .modules.service import service
 from .modules.workspace.product import product
+from .modules.file import file
 
 app = create_application()
 
@@ -48,6 +49,11 @@ app.include_router(
 app.include_router(
     router=service.router,
     tags=["Services"]
+)
+
+app.include_router(
+    router=file.router,
+    tags=["Files"]
 )
 
 @app.on_event("startup")
