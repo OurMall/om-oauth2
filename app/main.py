@@ -12,6 +12,7 @@ from .modules.workspace import workspace
 from .modules.category import category
 from .modules.service import service
 from .modules.workspace.product import product
+from .modules.workspace.post import post
 from .modules.file import file
 
 app = create_application()
@@ -39,6 +40,11 @@ app.include_router(
 app.include_router(
     router=product.router,
     tags=["Products"]
+)
+
+app.include_router(
+    router=post.router,
+    tags=["Posts"]
 )
 
 app.include_router(

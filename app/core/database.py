@@ -12,7 +12,9 @@ from app.common import (
     Category, 
     Workspace, 
     Service,
-    Product
+    Product,
+    Notification,
+    Post,
 )
 
 async def init():
@@ -30,7 +32,9 @@ async def init():
             Category,
             Workspace,
             Service,
-            Product
+            Product,
+            Notification,
+            Post,
         ]
     )
 

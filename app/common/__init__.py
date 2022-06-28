@@ -7,6 +7,8 @@ from .schemas.workspace_schema import Workspace, WorkspaceProfile
 from .schemas.category_schema import Category
 from .schemas.service_schema import Service
 from .schemas.product_schema import Product
+from .schemas.notification_schema import Notification
+from .schemas.post_schema import Post
 
 __all__ = [
     "Address",
@@ -21,5 +23,7 @@ __all__ = [
     "SocialMedia",
     "WorkspaceProfile",
     "Service",
-    "Product"
+    "Product",
+    "Notification",
+    "Post",
 ]

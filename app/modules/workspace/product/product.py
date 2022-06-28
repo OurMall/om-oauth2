@@ -32,19 +32,19 @@ async def create_product(
     product_data: ProductCreate
 ):
     if isinstance(product_data.workspace, str):
-        workspace = PydanticObjectId(product_data.workspace)
+        workspace_id = PydanticObjectId(product_data.workspace)
     else:
-        workspace = product_data.workspace
+        workspace_id = product_data.workspace
     try:
         new_product: Product = Product(**product_data.dict())
         await Product.insert_one(new_product)
-        product_workspace: Workspace = await Workspace.get(
-            document_id=workspace,
+        workspace: Workspace = await Workspace.get(
+            document_id=workspace_id,
             ignore_cache=True,
             fetch_links=True
         )
-        product_workspace.products.append(new_product)
-        await product_workspace.save(link_rule=WriteRules.WRITE, ignore_revision=True)
+        workspace.products.append(new_product)
+        await workspace.save(link_rule=WriteRules.WRITE, ignore_revision=True)
     except Exception:
         raise HTTPException(
             status_code=400,

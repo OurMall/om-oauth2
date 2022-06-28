@@ -241,20 +241,20 @@ async def forgot_password(
     jwt_provider: JSONWebTokenService = Depends(jwt.get_jwt_provider())
 ):
     try:
-        user = await User.find_one(
-            User.email == email,
-        )
+        user = await User.find(
+            User.email == email
+        ).first_or_none()
         if not user:
-            raise HTTPException(
+            return HttpResponse(
                 status_code=401,
-                detail={
+                body={
                     "status": "fail",
                     "response": {
-                        "message": "Not found user"
+                        "message": "Not user found"
                     }
                 }
-            )
-        token: str | bytes = jwt_provider.encode({
+            ).response()
+        token: str = jwt_provider.encode({
             "sub": user.id.__str__(),
             "email": user.email,
             "iat": datetime.datetime.utcnow(),
@@ -270,7 +270,8 @@ async def forgot_password(
             """.format(settings.CLIENT_ENDPOINT, token),
             format="html"
         )
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=400,
             detail={
