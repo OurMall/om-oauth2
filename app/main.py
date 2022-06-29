@@ -5,6 +5,7 @@ from .app import create_application
 from .io import create_sio
 from .core import database, settings
 from .common import Client
+from .modules.search import search_engine
 from .modules.oauth2 import oauth2
 from .modules.connect import connect
 from .modules.user import user
@@ -16,6 +17,11 @@ from .modules.workspace.post import post
 from .modules.file import file
 
 app = create_application()
+
+app.include_router(
+    router=search_engine.router,
+    tags=["Search methods"]
+)
 
 app.include_router(
     router=oauth2.router,
