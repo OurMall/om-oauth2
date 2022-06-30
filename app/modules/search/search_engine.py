@@ -17,6 +17,7 @@ async def search_engine(
     limit: int = Query(5, title="Limit", description="Limit for results in the query")
 ):
     try:
+        query = query.lower().strip()
         products: list[Product] = await Product.find(
             op.RegEx(
                 field=Product.name,
@@ -41,7 +42,8 @@ async def search_engine(
             length=limit
         )
         workspaces_response: list[WorkspaceModel] = [WorkspaceModel(**workspace.dict()) for workspace in workspaces]
-    except:
+    except Exception as e:
+        print(e)
         raise HTTPException(
             status_code=400,
             detail={

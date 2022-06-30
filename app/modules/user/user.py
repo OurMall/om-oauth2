@@ -30,6 +30,17 @@ async def add_user_groups(
             fetch_links=True,
             ignore_cache=True
         )
+        user_groups: list[str] = [str(group.code_name) for group in user.groups]
+        if code_name in user_groups:
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "status": "fail",
+                    "response": {
+                        "message": "Already you have that group"
+                    }
+                }
+            )
         user.groups.append(group)
         await user.save()
     except:
