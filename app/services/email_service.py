@@ -99,13 +99,15 @@ class EmailService:
             self._client = SMTP(**kwds)
         pass
     
-    async def _start_connection(self) -> None:
+    async def _start_connection(self, over_tls: bool = False) -> None:
         await self._client.connect(
             hostname=settings.SMTP_HOSTNAME,
-            port=settings.SMTP_PORT,
-            timeout=5000
+            port=settings.SMTP_PORT if not over_tls else 485,
+            timeout=5000,
+            use_tls=over_tls,
         )
-        await self._client.starttls()
+        if not over_tls:
+            await self._client.starttls()
         await self._client.login(
             username=settings.SMTP_USERNAME,
             password=settings.SMTP_PASSWORD
@@ -126,7 +128,7 @@ class EmailService:
         Raises:
             e: _description_
         """
-        await self._start_connection()
+        await self._start_connection(over_tls=True)
         if(isinstance(to, str)):
             to = [to]
         for email in to:

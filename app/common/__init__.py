@@ -9,6 +9,7 @@ from .schemas.service_schema import Service
 from .schemas.product_schema import Product
 from .schemas.notification_schema import Notification
 from .schemas.post_schema import Post
+from .schemas.review_schema import Review
 
 __all__ = [
     "Address",
@@ -26,4 +27,5 @@ __all__ = [
     "Product",
     "Notification",
     "Post",
+    "Review",
 ]

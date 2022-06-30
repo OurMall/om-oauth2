@@ -7,6 +7,7 @@ from .category_schema import Category
 from .service_schema import Service
 from .product_schema import Product
 from .post_schema import Post
+from .review_schema import Review
 
 class WorkspaceProfile(BaseSchema):
     name: Indexed(str, unique=True) = Field(..., title="Name", description="Workspace unique name")
@@ -26,7 +27,8 @@ class Workspace(Document):
     suscribers: list[str] = Field([], title="Subscribers", description="Workspace users as subscribers") # Change to users
     products: list[Link[Product]] = Field([], title="Products", description="Workspaces products") # Change to products
     notifications: list[str] = Field([]) # Change to notifications
-    posts: list[Link[Post]] = Field([])
+    posts: list[Link[Post]] = Field([], title="Posts", description="Workspace posts")
+    reviews: list[Link[Review]] = Field([], title="Reviews", description="Workspace reviews")
     is_verified: bool = Field(False, title="Verification", description="Workspace verification")
     created_at: datetime.datetime | str = Field(datetime.datetime.now(), title="Created AT", description="Workspace creation date")
     updated_at: datetime.datetime | str = Field(datetime.datetime.now(), title="Updated AT", description="Workspace last update")

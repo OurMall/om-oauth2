@@ -15,6 +15,7 @@ from app.common import (
     Product,
     Notification,
     Post,
+    Review,
 )
 
 async def init():
@@ -35,6 +36,7 @@ async def init():
             Product,
             Notification,
             Post,
+            Review,
         ]
     )
 

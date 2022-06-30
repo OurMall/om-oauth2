@@ -9,6 +9,7 @@ from .service_model import ServiceModel
 from .category_model import CategoryModel
 from .product_model import ProductModel
 from .post_model import PostModel
+from .review_model import ReviewModel
 
 class WorkspaceProfileModel(BaseModel):
     name: str = Field(None)
@@ -33,6 +34,7 @@ class WorkspaceModel(WorkspaceCreate):
     services: list[ServiceModel] = Field([])
     suscribers: list[str] = Field([])
     products: list[ProductModel] = Field([])
+    reviews: list[ReviewModel] = Field([])
     posts: list[PostModel] = Field([])
     created_at: int | datetime.datetime = Field(None)
     updated_at: int | datetime.datetime = Field(None)

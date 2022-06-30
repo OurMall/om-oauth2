@@ -1,7 +1,8 @@
 from beanie import PydanticObjectId, operators as op
+from jinja2 import pass_environment
 from socketio import AsyncNamespace
 
-from app.common import Workspace, User
+from app.common import Workspace, User, Review
 from app.common.models.workspace_model import WorkspaceModel
 from app.common.models.user_model import UserModel
 
@@ -97,6 +98,78 @@ class WorkspaceNamespace(AsyncNamespace):
                 room=workspace_response.id
             )
     
+    async def on_create_comment(self, sid: str, data: dict):
+        try:
+            if not data.get('user'):
+                return await self.emit(
+                    event="not_token",
+                    data={
+                        "status": "fail",
+                        "response": {
+                            "message": "User not logged in"
+                        }
+                    },
+                    to=sid
+                )
+            if isinstance(data['user'], str):
+                data['user'] = PydanticObjectId(data['user'])
+            workspace = await Workspace.get(
+                document_id=data['workspace'],
+                fetch_links=True
+            )
+            users_commented: list[str] = [str(review.user_id) for review in workspace.reviews]
+            if data['user'] in users_commented:
+                return await self.emit(
+                    event="already_commented",
+                    data={
+                        "status": "fail",
+                        "response": {
+                            "message": "Already you have one comment in workspace"
+                        }
+                    },
+                    to=sid
+                )
+            new_review = Review(
+                user_id=data['user'],
+                comment=data['review']['comment'],
+            )
+            await Review.insert_one(new_review)
+            workspace.reviews.append(new_review)
+            await workspace.save(
+                ignore_revision=True
+            )
+        except:
+            return await self.emit(
+                event="workspace_error",
+                data={
+                    "status": "fail",
+                    "response": {
+                        "message": "Something went wrong"
+                    }
+                },
+                to=sid
+            )
+            
+        else:
+            return await self.emit(
+                event="new_comment",
+                data={
+                    "status": "success",
+                    "response": {
+                        "message": "new comment in workspace"
+                    }
+                },
+                room=data['workspace']
+            )
+    
+    async def on_workspace_comments(self, sid: str, data: dict):
+        try:
+            pass
+        except:
+            pass
+        else:
+            pass
+    
     async def on_subscribe_workspace(self, sid: str, data: dict):
         try:
             if not data.get('user'):
@@ -182,9 +255,11 @@ class WorkspaceNamespace(AsyncNamespace):
                 op.In(User.email, subscribers),
                 fetch_links=False
             ).to_list()
-            subscribers_response: list[dict] = [UserModel(**subscriber.dict()).dict(
-                exclude={"id", "gender", "created_at", "updated_at"}
-            ) for subscriber in subscribers_from_db]
+            subscribers_response: list[dict] = [
+                UserModel(**subscriber.dict()).dict(
+                    exclude={"id", "gender", "created_at", "updated_at"}
+                ) for subscriber in subscribers_from_db
+            ]
         except:
             return await self.emit(
                 event="workspace_error",
