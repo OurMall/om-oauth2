@@ -3,6 +3,7 @@ from jinja2 import pass_environment
 from socketio import AsyncNamespace
 
 from app.common import Workspace, User, Review
+from app.common.models.review_model import ReviewModel
 from app.common.models.workspace_model import WorkspaceModel
 from app.common.models.user_model import UserModel
 
@@ -118,7 +119,7 @@ class WorkspaceNamespace(AsyncNamespace):
                 fetch_links=True
             )
             users_commented: list[str] = [str(review.user_id) for review in workspace.reviews]
-            if data['user'] in users_commented:
+            if str(data['user']) in users_commented:
                 return await self.emit(
                     event="already_commented",
                     data={
@@ -130,7 +131,7 @@ class WorkspaceNamespace(AsyncNamespace):
                     to=sid
                 )
             new_review = Review(
-                user_id=data['user'],
+                user_id=str(data['user']),
                 comment=data['review']['comment'],
             )
             await Review.insert_one(new_review)
@@ -138,6 +139,7 @@ class WorkspaceNamespace(AsyncNamespace):
             await workspace.save(
                 ignore_revision=True
             )
+            await self.on_workspace_comments(sid=sid, data=data)
         except:
             return await self.emit(
                 event="workspace_error",
@@ -149,7 +151,6 @@ class WorkspaceNamespace(AsyncNamespace):
                 },
                 to=sid
             )
-            
         else:
             return await self.emit(
                 event="new_comment",
@@ -164,11 +165,36 @@ class WorkspaceNamespace(AsyncNamespace):
     
     async def on_workspace_comments(self, sid: str, data: dict):
         try:
-            pass
+            workspace = await Workspace.get(
+                document_id=data['workspace'],
+                fetch_links=True
+            )
+            reviews_response: list[ReviewModel] = [
+                ReviewModel(**review.dict()).dict(
+                    exclude={"created_at", "id"}
+                ) for review in workspace.reviews
+            ]
         except:
-            pass
+            return await self.emit(
+                event="workspace_error",
+                data={
+                    "status": "fail",
+                    "response": {
+                        "message": "Something went wrong"
+                    }
+                },
+                to=sid
+            )
         else:
-            pass
+            return await self.emit(
+                event="reviews",
+                data={
+                    "status": "success",
+                    "response": {
+                        "reviews": reviews_response
+                    }
+                }
+            )
     
     async def on_subscribe_workspace(self, sid: str, data: dict):
         try:
