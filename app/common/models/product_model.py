@@ -11,7 +11,7 @@ class ProductCreate(BaseModel):
     detail: str = Field(None)
     price: Price = Field(None)
     stock: int = Field(None)
-    images: list[str] = Field(None)
+    images: list[str] = Field([])
     status: ProductStatus = Field(None)
     is_available: bool = Field(None)
     workspace: str = Field(None)

@@ -102,7 +102,7 @@ class EmailService:
     async def _start_connection(self, over_tls: bool = False) -> None:
         await self._client.connect(
             hostname=settings.SMTP_HOSTNAME,
-            port=settings.SMTP_PORT if not over_tls else 485,
+            port=settings.SMTP_PORT if not over_tls else 465,
             timeout=5000,
             use_tls=over_tls,
         )
@@ -128,7 +128,7 @@ class EmailService:
         Raises:
             e: _description_
         """
-        await self._start_connection(over_tls=True)
+        await self._start_connection(over_tls=False)
         if(isinstance(to, str)):
             to = [to]
         for email in to:

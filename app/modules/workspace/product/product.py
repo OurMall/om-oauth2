@@ -78,8 +78,32 @@ async def edit_product(
 ) -> Response | HTTPException:
     pass
 
-@router.delete("/{id}", response_model=None, status_code=201)
+@router.delete("/{id}", response_model=SuccessResponseModel, status_code=201)
 async def delete_product(
     id: str = Path(..., title="ID", description="Unique product identifier")
 ) -> Response | HTTPException:
-    pass
+    try:
+        product = await Product.get(
+            document_id=id,
+        )
+        await product.delete()
+    except:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "fail",
+                "response": {
+                    "message": "Something went wrong"
+                }
+            }
+        )
+    else:
+        return HttpResponse(
+            status_code=201,
+            body={
+                "status": "success",
+                "response": {
+                    "message": "Deleted"
+                }
+            }
+        ).response()
